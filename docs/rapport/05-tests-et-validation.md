@@ -263,6 +263,24 @@ correctement désérialisée et affichée.
 
 [À INSÉRER : Capture de la page d'accueil — `frontend_page_accueil.png`]
 
+### 5.6.3 Vérification de l'adaptation responsive
+
+La page a été réaffichée avec une émulation de viewport mobile (390 × 844 px,
+facteur d'échelle 2) au moyen des outils de développement du navigateur.
+Comportement observé :
+
+| Élément | Comportement en largeur réduite |
+|---------|--------------------------------|
+| Barre de navigation | Passage en disposition verticale ; le logo se place au-dessus des liens |
+| Liens de navigation | Retour à la ligne automatique sur deux rangées |
+| Titre de la section d'accueil | Réduction de la taille de police (`clamp()`) et retour à la ligne |
+| Carte d'état du backend | Passage de quatre colonnes à une seule colonne |
+| Cartes des modules | Passage de trois colonnes à une seule colonne |
+
+Aucun débordement horizontal ni chevauchement n'a été constaté.
+
+[À INSÉRER : Capture du rendu mobile — `frontend_responsive_mobile.png`]
+
 ## 5.7 Anomalies détectées et corrigées
 
 | N° | Anomalie | Détection | Correction | Vérification |
@@ -287,9 +305,10 @@ correctement désérialisée et affichée.
 | V9 | Le frontend démarre | `npm start` | **Validé** — port 4200 |
 | V10 | La page d'accueil s'affiche | navigateur | **Validé** |
 | V11 | Angular communique avec Spring Boot | badges d'état sur la page | **Validé** — `API: UP`, `BASE: UP` |
-| V12 | Aucun secret n'est présent dans le dépôt | relecture des fichiers et de `.gitignore` | **Validé** — variables d'environnement |
+| V12 | Aucun secret n'est présent dans le dépôt | recherche automatisée du mot de passe dans les 64 fichiers texte indexés par Git | **Validé** — aucune occurrence |
+| V13 | La mise en page s'adapte aux petits écrans | émulation mobile 390 × 844 px | **Validé** — aucun débordement |
 
-**Bilan : les douze critères de validation de la phase 0 sont satisfaits.**
+**Bilan : les treize critères de validation de la phase 0 sont satisfaits.**
 
 ## 5.9 Limites de la validation actuelle
 
@@ -299,7 +318,7 @@ Par souci d'exactitude, les points suivants n'ont **pas** été vérifiés :
   l'absence d'entité) ;
 - aucun test de charge ni mesure de performance ;
 - aucune vérification sur un navigateur autre que Chrome ;
-- aucune vérification du rendu responsive sur un appareil mobile physique (les
-  règles CSS correspondantes sont écrites mais non éprouvées) ;
+- le rendu responsive a été contrôlé **par émulation** dans les outils de
+  développement, mais sur **aucun appareil mobile physique** ;
 - aucun test de sécurité, le module d'authentification n'étant pas réalisé ;
 - aucun test d'accessibilité.
