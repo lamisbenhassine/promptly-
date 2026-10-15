@@ -114,15 +114,26 @@ Dossier complémentaire : `docs/screenshots/08-ia-developpement/`
 | 6.30 | `auth_correction_bom.png` | Erreur `\ufeff` puis fichier réécrit sans BOM | Correction d'un artefact PowerShell |
 | 6.31 | `auth_correction_admin_initializer.png` | Annotation `@Profile("!test")` et commentaire associé | Priorité des variables d'environnement sur `application-test.properties` |
 
-## 6.6 Captures des phases ultérieures
+## 6.6 Phase 2 — Cours
+
+Dossier : `docs/screenshots/03-cours/`
+
+| Figure | Nom de fichier | À cadrer | Démontre |
+|--------|----------------|----------|----------|
+| 6.32 | `cours_catalogue.png` | `/cours` avec filtres et au moins une carte | Catalogue et classement par technologie |
+| 6.33 | `cours_detail.png` | `/cours/1` avec description et objectifs | Fiche pédagogique |
+| 6.34 | `cours_formulaire.png` | `/cours/nouveau` | Formulaire de création |
+| 6.35 | `cours_postman_403.png` | `POST /api/courses` avec un jeton ETUDIANT | Refus de création |
+| 6.36 | `cours_brouillon_404.png` | `GET /api/courses/{id}` d'un brouillon en ETUDIANT | 404 plutôt que 403 |
+| 6.37 | `cours_tests_backend.png` | Sortie des 18 tests cours | Validation automatisée |
+
+## 6.7 Captures des phases ultérieures
 
 Les dossiers suivants sont créés mais vides. Leur contenu sera défini au début de
 chaque module.
 
 | Dossier | Module correspondant |
 |---------|---------------------|
-| `03-cours/` | Gestion des cours |
-| `03-cours/` | Gestion des cours |
 | `04-chapitres/` | Gestion des chapitres |
 | `05-evaluations/` | Quiz et résultats |
 | `06-forum/` | Publications et commentaires |

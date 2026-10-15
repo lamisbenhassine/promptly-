@@ -358,6 +358,50 @@ piège de Spring Boot que le modèle n'a pas anticipé.
 
 ---
 
+## Phase 2 — Gestion des cours
+
+### P-007 — Conception et implémentation du catalogue de cours
+
+**Date :** 15 octobre 2026
+**Objectif :** CRUD des cours, classement par technologie, rattachement à un
+enseignant, visibilité des brouillons.
+
+**Règles retenues :**
+- un cours appartient à un unique enseignant (`ENSEIGNANT` ou `ADMIN`) ;
+- un étudiant ne voit que les cours publiés (un brouillon renvoie 404, pas 403) ;
+- un enseignant crée et modifie uniquement ses cours ; un administrateur gère tout ;
+- un enseignant ne peut pas s'attribuer le cours d'un collègue, même en
+  transmettant un `instructorId` ;
+- un étudiant ne peut pas être désigné comme enseignant.
+
+**Résultat obtenu :** paquetage `course/` (entité, enum `CourseCategory`,
+service, contrôleur, DTO) et pages Angular `/cours`, `/cours/nouveau`,
+`/cours/:id`, `/cours/:id/modifier`.
+
+**Problèmes constatés :** aucun échec de test après la première exécution
+(`CourseServiceTest` + `CourseRulesIntegrationTest` : 18/18).
+
+**Tests effectués :**
+
+```
+.\mvnw.cmd test
+  → BUILD SUCCESS (suite complète, dont 18 nouveaux tests cours)
+
+POST /api/courses (ADMIN)     → 201, id=1, titre Introduction a Spring Boot
+GET  /api/courses (ETUDIANT)  → 1 cours publié
+POST /api/courses (ETUDIANT)  → 403
+Page /cours (après login)     → carte du cours + filtres de catégorie
+Page /cours/1                 → description, objectifs, boutons Modifier / Supprimer
+```
+
+**Analyse critique :** le modèle de visibilité (404 sur un brouillon) et le
+forçage de l'enseignant côté serveur sont des décisions de sécurité que l'IA
+a appliquées de manière cohérente avec le module d'authentification. Elles
+devaient toutefois être spécifiées explicitement : l'IA ne les invente pas
+correctement si on lui demande seulement un « CRUD de cours ».
+
+---
+
 ## Modèle d'entrée pour les phases suivantes
 
 ```markdown

@@ -26,7 +26,7 @@ export class Navbar {
    */
   protected readonly links = [
     { label: 'Accueil', path: '/', enabled: true },
-    { label: 'Cours', path: '/cours', enabled: false },
+    { label: 'Cours', path: '/cours', enabled: true },
     { label: 'Quiz', path: '/quiz', enabled: false },
     { label: 'Forum', path: '/forum', enabled: false },
     { label: 'Reclamations', path: '/reclamations', enabled: false }

@@ -351,7 +351,27 @@ d'environnement sur `application-test.properties`). Le détail figure dans
 [À INSÉRER : Capture de la page d'administration — `auth_page_admin.png`]
 [À INSÉRER : Capture du 403 dans Postman — `auth_postman_403.png`]
 
-## 5.10 Limites de la validation actuelle
+## 5.10 Validation du module 2 — Cours
+
+18 tests automatisés ont été ajoutés (`CourseServiceTest` : 6 ; `CourseRulesIntegrationTest` : 12).
+
+Résultat de la suite complète le 15 octobre 2026 : `BUILD SUCCESS`.
+
+Vérifications manuelles :
+
+| N° | Critère | Résultat observé |
+|----|---------|------------------|
+| C1 | Création par un administrateur | `201`, cours `Introduction a Spring Boot` |
+| C2 | Catalogue étudiant | 1 cours publié visible |
+| C3 | Création par un étudiant | `403` |
+| C4 | Page `/cours` | filtres par catégorie + carte du cours |
+| C5 | Page `/cours/1` | description, objectifs, actions Modifier / Supprimer pour l'admin |
+
+[À INSÉRER : Capture du catalogue — `cours_catalogue.png`]
+[À INSÉRER : Capture de la fiche — `cours_detail.png`]
+[À INSÉRER : Capture du 403 étudiant — `cours_postman_403.png`]
+
+## 5.11 Limites de la validation actuelle
 
 Par souci d'exactitude, les points suivants n'ont **pas** été vérifiés :
 

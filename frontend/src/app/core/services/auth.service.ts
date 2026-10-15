@@ -39,6 +39,10 @@ export class AuthService {
   readonly currentUser = this.userSignal.asReadonly();
   readonly isAuthenticated = computed(() => this.userSignal() !== null);
   readonly isAdmin = computed(() => this.userSignal()?.role === 'ADMIN');
+  readonly canManageCourses = computed(() => {
+    const role = this.userSignal()?.role;
+    return role === 'ADMIN' || role === 'ENSEIGNANT';
+  });
 
   // ----------------------------------------------------------------
   //  Appels a l'API

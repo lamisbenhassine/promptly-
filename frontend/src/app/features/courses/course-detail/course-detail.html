@@ -1,0 +1,45 @@
+<section class="detail">
+
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+    <a routerLink="/cours">Retour au catalogue</a>
+  } @else if (course(); as c) {
+
+    <p class="detail__back"><a routerLink="/cours">&larr; Catalogue</a></p>
+
+    <header class="detail__header">
+      <div>
+        <div class="detail__tags">
+          <span class="badge badge--neutral">{{ labels[c.category] }}</span>
+          @if (!c.published) {
+            <span class="badge badge--ko">Brouillon</span>
+          }
+        </div>
+        <h1>{{ c.title }}</h1>
+        <p class="detail__meta">
+          {{ c.instructor.firstName }} {{ c.instructor.lastName }}
+          &middot; mis a jour le {{ c.updatedAt | date:'dd/MM/yyyy' }}
+        </p>
+      </div>
+
+      @if (canManage(c)) {
+        <div class="detail__actions">
+          <a class="btn" [routerLink]="['/cours', c.id, 'modifier']">Modifier</a>
+          <button type="button" class="btn btn--ghost" (click)="remove(c)" [disabled]="deleting()">
+            {{ deleting() ? 'Suppression...' : 'Supprimer' }}
+          </button>
+        </div>
+      }
+    </header>
+
+    <article class="panel">
+      <h2 class="panel__title">Description</h2>
+      <p class="detail__text">{{ c.description }}</p>
+    </article>
+
+    <article class="panel">
+      <h2 class="panel__title">Objectifs d'apprentissage</h2>
+      <p class="detail__text">{{ c.learningObjectives }}</p>
+    </article>
+  }
+</section>

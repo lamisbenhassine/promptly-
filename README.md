@@ -16,7 +16,7 @@ documente l'utilisation de l'intelligence artificielle a deux niveaux :
 |-------|--------|------|
 | 0 | Template et fondation technique | **Termine** |
 | 1 | Authentification et gestion des utilisateurs | **Termine** |
-| 2 | Gestion des cours | Non commence |
+| 2 | Gestion des cours | **Termine** |
 | 3 | Gestion des chapitres | Non commence |
 | 4 | Evaluations et quiz | Non commence |
 | 5 | Forum et communaute | Non commence |
@@ -196,6 +196,11 @@ npm run build
 | GET | `/api/users` | ADMIN | Liste paginee des utilisateurs |
 | PUT | `/api/users/{id}/role` | ADMIN | Modification du role |
 | PATCH | `/api/users/{id}/status` | ADMIN | Activation / desactivation |
+| GET | `/api/courses` | Authentifie | Catalogue (brouillons filtres selon le role) |
+| GET | `/api/courses/{id}` | Authentifie | Detail d'un cours visible |
+| POST | `/api/courses` | ENSEIGNANT, ADMIN | Creation d'un cours |
+| PUT | `/api/courses/{id}` | Proprietaire ou ADMIN | Modification |
+| DELETE | `/api/courses/{id}` | Proprietaire ou ADMIN | Suppression |
 
 Exemple de reponse :
 

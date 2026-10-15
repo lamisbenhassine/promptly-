@@ -38,6 +38,30 @@ export const routes: Routes = [
     title: 'Promptly - Utilisateurs'
   },
   {
+    path: 'cours',
+    loadComponent: () => import('./features/courses/course-list/course-list').then((m) => m.CourseList),
+    canActivate: [authGuard],
+    title: 'Promptly - Cours'
+  },
+  {
+    path: 'cours/nouveau',
+    loadComponent: () => import('./features/courses/course-form/course-form').then((m) => m.CourseForm),
+    canActivate: [authGuard, roleGuard(['ENSEIGNANT', 'ADMIN'])],
+    title: 'Promptly - Nouveau cours'
+  },
+  {
+    path: 'cours/:id/modifier',
+    loadComponent: () => import('./features/courses/course-form/course-form').then((m) => m.CourseForm),
+    canActivate: [authGuard, roleGuard(['ENSEIGNANT', 'ADMIN'])],
+    title: 'Promptly - Modifier le cours'
+  },
+  {
+    path: 'cours/:id',
+    loadComponent: () => import('./features/courses/course-detail/course-detail').then((m) => m.CourseDetail),
+    canActivate: [authGuard],
+    title: 'Promptly - Cours'
+  },
+  {
     path: '**',
     redirectTo: ''
   }

@@ -62,7 +62,7 @@ avant que le suivant ne soit abordé.
 |----|--------|-------------------------|------|
 | 0 | Template et fondation | Architecture technique, communication Angular/Spring Boot, page d'accueil | **Réalisé** |
 | 1 | Authentification et utilisateurs | Inscription, connexion, profils, rôles, restrictions d'accès | **Réalisé** |
-| 2 | Gestion des cours | CRUD des cours, catégories, affectation aux enseignants | Planifié |
+| 2 | Gestion des cours | CRUD des cours, catégories, affectation aux enseignants | **Réalisé** |
 | 3 | Gestion des chapitres | Découpage des cours, contenus et exemples de code | Planifié |
 | 4 | Évaluations et quiz | QCM, soumission des réponses, calcul des scores | Planifié |
 | 5 | Forum et communauté | Publications, commentaires, modération | Planifié |

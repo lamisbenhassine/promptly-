@@ -1,0 +1,58 @@
+<section class="courses">
+
+  <header class="courses__header">
+    <div>
+      <h1>Cours</h1>
+      <p class="courses__subtitle">Catalogue classe par technologie.</p>
+    </div>
+    @if (canManage()) {
+      <a class="btn" routerLink="/cours/nouveau">Nouveau cours</a>
+    }
+  </header>
+
+  <div class="filters" role="group" aria-label="Filtrer par categorie">
+    <button type="button" class="chip"
+            [class.chip--active]="selectedCategory() === null"
+            (click)="filterBy(null)">
+      Tous
+    </button>
+    @for (category of categories; track category) {
+      <button type="button" class="chip"
+              [class.chip--active]="selectedCategory() === category"
+              (click)="filterBy(category)">
+        {{ labels[category] }}
+      </button>
+    }
+  </div>
+
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (loading()) {
+    <p class="courses__empty">Chargement...</p>
+  } @else if (courses().length === 0) {
+    <p class="courses__empty">Aucun cours dans cette categorie.</p>
+  } @else {
+    <div class="courses__grid">
+      @for (course of courses(); track course.id) {
+        <article class="card">
+          <div class="card__top">
+            <span class="badge badge--neutral">{{ labels[course.category] }}</span>
+            @if (!course.published) {
+              <span class="badge badge--ko">Brouillon</span>
+            }
+          </div>
+          <h2 class="card__title">
+            <a [routerLink]="['/cours', course.id]">{{ course.title }}</a>
+          </h2>
+          <p class="card__text">{{ course.description }}</p>
+          <p class="card__meta">
+            {{ course.instructor.firstName }} {{ course.instructor.lastName }}
+            &middot; {{ course.createdAt | date:'dd/MM/yyyy' }}
+          </p>
+        </article>
+      }
+    </div>
+  }
+</section>

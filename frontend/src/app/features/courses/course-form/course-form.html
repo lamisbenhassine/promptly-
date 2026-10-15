@@ -1,0 +1,69 @@
+<section class="auth">
+  <div class="auth__card" style="max-width: 640px;">
+
+    <h1 class="auth__title">
+      {{ editingId() ? 'Modifier le cours' : 'Nouveau cours' }}
+    </h1>
+    <p class="auth__subtitle">
+      Titre, categorie, description et objectifs d'apprentissage.
+    </p>
+
+    @if (errorMessage()) {
+      <p class="alert" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+      <div class="field">
+        <label for="title">Titre</label>
+        <input id="title" type="text" formControlName="title"
+               [class.field__input--error]="showError('title')">
+        @if (showError('title')) {
+          <small class="field__error">Entre 3 et 120 caracteres.</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="category">Categorie</label>
+        <select id="category" formControlName="category">
+          @for (category of categories; track category) {
+            <option [ngValue]="category">{{ labels[category] }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="description">Description</label>
+        <textarea id="description" rows="4" formControlName="description"
+                  [class.field__input--error]="showError('description')"></textarea>
+        @if (showError('description')) {
+          <small class="field__error">Entre 10 et 2000 caracteres.</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="learningObjectives">Objectifs d'apprentissage</label>
+        <textarea id="learningObjectives" rows="4" formControlName="learningObjectives"
+                  [class.field__input--error]="showError('learningObjectives')"></textarea>
+        @if (showError('learningObjectives')) {
+          <small class="field__error">Entre 10 et 2000 caracteres.</small>
+        }
+      </div>
+
+      <div class="field">
+        <label>
+          <input type="checkbox" formControlName="published">
+          Publier le cours (visible par les etudiants)
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn--block" [disabled]="submitting()">
+        {{ submitting() ? 'Enregistrement...' : (editingId() ? 'Enregistrer' : 'Creer le cours') }}
+      </button>
+    </form>
+
+    <p class="auth__footer">
+      <a routerLink="/cours">Retour au catalogue</a>
+    </p>
+  </div>
+</section>

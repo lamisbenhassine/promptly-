@@ -122,8 +122,14 @@ code {
   margin-bottom: 0.4rem;
 }
 
+.field input[type="checkbox"] {
+  width: auto;
+  margin-right: 0.5rem;
+}
+
 .field input,
-.field select {
+.field select,
+.field textarea {
   width: 100%;
   font-family: inherit;
   font-size: 0.95rem;
@@ -135,8 +141,14 @@ code {
   transition: border-color 0.15s ease;
 }
 
+.field textarea {
+  resize: vertical;
+  min-height: 6rem;
+}
+
 .field input:focus,
-.field select:focus {
+.field select:focus,
+.field textarea:focus {
   outline: none;
   border-color: var(--color-primary);
 }
