@@ -1,0 +1,63 @@
+<section class="hero">
+  <p class="hero__tag">Projet academique &middot; Spring Boot + Angular</p>
+  <h1 class="hero__title">
+    Apprenez a programmer avec <span class="hero__accent">Promptly</span>
+  </h1>
+  <p class="hero__text">
+    Promptly est une plateforme e-learning consacree a la programmation, au
+    developpement logiciel et a l'algorithmique. Cours, chapitres, quiz et
+    forum d'entraide y seront progressivement integres.
+  </p>
+</section>
+
+<section class="status" aria-labelledby="status-title">
+  <div class="status__header">
+    <h2 id="status-title">Etat de la connexion au backend</h2>
+    <button type="button" class="btn" (click)="checkBackend()" [disabled]="loading()">
+      {{ loading() ? 'Verification...' : 'Retester' }}
+    </button>
+  </div>
+
+  @if (health(); as h) {
+    <dl class="status__grid">
+      <div class="status__item">
+        <dt>API</dt>
+        <dd><span class="badge badge--ok">{{ h.status }}</span></dd>
+      </div>
+      <div class="status__item">
+        <dt>Base de donnees</dt>
+        <dd>
+          <span class="badge" [class.badge--ok]="h.database === 'UP'"
+                              [class.badge--ko]="h.database !== 'UP'">
+            {{ h.database }}
+          </span>
+        </dd>
+      </div>
+      <div class="status__item">
+        <dt>Application</dt>
+        <dd>{{ h.application }} <code>{{ h.version }}</code></dd>
+      </div>
+      <div class="status__item">
+        <dt>Horodatage</dt>
+        <dd>{{ h.timestamp | date:'dd/MM/yyyy HH:mm:ss' }}</dd>
+      </div>
+    </dl>
+  } @else if (errorMessage()) {
+    <p class="alert">{{ errorMessage() }}</p>
+  } @else {
+    <p class="status__loading">Interrogation de l'API en cours...</p>
+  }
+</section>
+
+<section class="modules" aria-labelledby="modules-title">
+  <h2 id="modules-title">Modules prevus</h2>
+  <div class="modules__grid">
+    @for (module of modules; track module.title) {
+      <article class="card">
+        <h3 class="card__title">{{ module.title }}</h3>
+        <p class="card__text">{{ module.description }}</p>
+        <span class="card__badge">A venir</span>
+      </article>
+    }
+  </div>
+</section>

@@ -1,0 +1,28 @@
+<header class="navbar">
+  <div class="navbar__inner">
+
+    <a class="brand" routerLink="/">
+      <span class="brand__mark">&lt;/&gt;</span>
+      <span class="brand__name">Promptly</span>
+    </a>
+
+    <nav class="nav" aria-label="Navigation principale">
+      @for (link of links; track link.path) {
+        @if (link.enabled) {
+          <a
+            class="nav__link"
+            [routerLink]="link.path"
+            routerLinkActive="nav__link--active"
+            [routerLinkActiveOptions]="{ exact: true }">
+            {{ link.label }}
+          </a>
+        } @else {
+          <span class="nav__link nav__link--disabled" title="Module a venir">
+            {{ link.label }}
+          </span>
+        }
+      }
+    </nav>
+
+  </div>
+</header>

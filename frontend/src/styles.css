@@ -1,0 +1,76 @@
+/* ===================================================================
+   Promptly - styles globaux
+   Les couleurs et rayons sont declares comme variables CSS afin d'etre
+   reutilises par tous les composants sans duplication.
+   =================================================================== */
+
+:root {
+  --color-bg: #0b1120;
+  --color-surface: #111b2e;
+  --color-border: #1f2b44;
+  --color-primary: #38bdf8;
+  --color-text: #e2e8f0;
+  --color-text-muted: #94a3b8;
+
+  --radius: 12px;
+  --layout-max-width: 1120px;
+
+  --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Cascadia Code', 'Consolas', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 650;
+  color: var(--color-text);
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: rgba(148, 163, 184, 0.12);
+  border-radius: 5px;
+  padding: 0.1rem 0.35rem;
+}
+
+.btn {
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #04121f;
+  background: var(--color-primary);
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.1rem;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.btn:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

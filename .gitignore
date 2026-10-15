@@ -1,0 +1,43 @@
+# ===================== Backend (Maven / Java) =====================
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+*.war
+
+# Configuration locale eventuelle contenant des identifiants
+backend/src/main/resources/application-local.properties
+
+# ======================= Frontend (Angular) =======================
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/coverage/
+npm-debug.log*
+yarn-error.log*
+
+# ========================== Journaux ==============================
+*.log
+backend-run.log
+
+# ============================= IDE ================================
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# ========================== Systeme ===============================
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# =================== Secrets / variables d'env ====================
+.env
+.env.local
+*.pem
+*.key
