@@ -61,7 +61,7 @@ avant que le suivant ne soit abordé.
 | N° | Module | Description synthétique | État |
 |----|--------|-------------------------|------|
 | 0 | Template et fondation | Architecture technique, communication Angular/Spring Boot, page d'accueil | **Réalisé** |
-| 1 | Authentification et utilisateurs | Inscription, connexion, profils, rôles, restrictions d'accès | Planifié |
+| 1 | Authentification et utilisateurs | Inscription, connexion, profils, rôles, restrictions d'accès | **Réalisé** |
 | 2 | Gestion des cours | CRUD des cours, catégories, affectation aux enseignants | Planifié |
 | 3 | Gestion des chapitres | Découpage des cours, contenus et exemples de code | Planifié |
 | 4 | Évaluations et quiz | QCM, soumission des réponses, calcul des scores | Planifié |

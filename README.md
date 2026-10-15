@@ -15,7 +15,7 @@ documente l'utilisation de l'intelligence artificielle a deux niveaux :
 | Phase | Module | Etat |
 |-------|--------|------|
 | 0 | Template et fondation technique | **Termine** |
-| 1 | Authentification et gestion des utilisateurs | Non commence |
+| 1 | Authentification et gestion des utilisateurs | **Termine** |
 | 2 | Gestion des cours | Non commence |
 | 3 | Gestion des chapitres | Non commence |
 | 4 | Evaluations et quiz | Non commence |
@@ -117,6 +117,13 @@ depuis des variables d'environnement Windows, a definir une seule fois :
 ```powershell
 [Environment]::SetEnvironmentVariable('PROMPTLY_DB_USER','root','User')
 [Environment]::SetEnvironmentVariable('PROMPTLY_DB_PASSWORD','votre_mot_de_passe','User')
+
+# Cle de signature JWT : au moins 32 caracteres, generee aleatoirement.
+[Environment]::SetEnvironmentVariable('PROMPTLY_JWT_SECRET','<cle-d-au-moins-32-caracteres>','User')
+
+# Compte administrateur cree au premier demarrage s'il n'en existe aucun.
+[Environment]::SetEnvironmentVariable('PROMPTLY_ADMIN_EMAIL','admin@promptly.local','User')
+[Environment]::SetEnvironmentVariable('PROMPTLY_ADMIN_PASSWORD','<mot-de-passe-admin>','User')
 ```
 
 Fermer puis reouvrir le terminal pour que les variables soient prises en compte.
@@ -178,9 +185,17 @@ npm run build
 
 ## API
 
-| Methode | Endpoint | Description |
-|---------|----------|-------------|
-| GET | `/api/health` | Verifie que l'API repond et que MySQL est joignable |
+| Methode | Endpoint | Acces | Description |
+|---------|----------|-------|-------------|
+| GET | `/api/health` | Public | Verifie que l'API repond et que MySQL est joignable |
+| POST | `/api/auth/register` | Public | Cree un compte ETUDIANT |
+| POST | `/api/auth/login` | Public | Renvoie un jeton JWT |
+| GET | `/api/auth/me` | Authentifie | Profil de l'utilisateur connecte |
+| PUT | `/api/users/me` | Authentifie | Modification du profil |
+| PUT | `/api/users/me/password` | Authentifie | Changement de mot de passe |
+| GET | `/api/users` | ADMIN | Liste paginee des utilisateurs |
+| PUT | `/api/users/{id}/role` | ADMIN | Modification du role |
+| PATCH | `/api/users/{id}/status` | ADMIN | Activation / desactivation |
 
 Exemple de reponse :
 

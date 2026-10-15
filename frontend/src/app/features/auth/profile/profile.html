@@ -1,0 +1,90 @@
+<section class="profile">
+
+  <header class="profile__header">
+    <h1>Mon profil</h1>
+    @if (user(); as u) {
+      <p class="profile__meta">
+        {{ u.email }}
+        &middot;
+        <span class="badge badge--neutral">{{ roleLabels[u.role] }}</span>
+        &middot;
+        membre depuis {{ u.createdAt | date:'dd/MM/yyyy' }}
+      </p>
+    }
+  </header>
+
+  <div class="profile__grid">
+
+    <article class="panel">
+      <h2 class="panel__title">Informations personnelles</h2>
+
+      @if (profileMessage()) {
+        <p class="alert alert--success" role="status">{{ profileMessage() }}</p>
+      }
+      @if (profileError()) {
+        <p class="alert" role="alert">{{ profileError() }}</p>
+      }
+
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+        <div class="grid-2">
+          <div class="field">
+            <label for="firstName">Prenom</label>
+            <input id="firstName" type="text" formControlName="firstName"
+                   [class.field__input--error]="showProfileError('firstName')">
+            @if (showProfileError('firstName')) {
+              <small class="field__error">Entre 2 et 50 caracteres.</small>
+            }
+          </div>
+          <div class="field">
+            <label for="lastName">Nom</label>
+            <input id="lastName" type="text" formControlName="lastName"
+                   [class.field__input--error]="showProfileError('lastName')">
+            @if (showProfileError('lastName')) {
+              <small class="field__error">Entre 2 et 50 caracteres.</small>
+            }
+          </div>
+        </div>
+
+        <button type="submit" class="btn" [disabled]="profileSubmitting()">
+          {{ profileSubmitting() ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
+      </form>
+    </article>
+
+    <article class="panel">
+      <h2 class="panel__title">Changer le mot de passe</h2>
+
+      @if (passwordMessage()) {
+        <p class="alert alert--success" role="status">{{ passwordMessage() }}</p>
+      }
+      @if (passwordError()) {
+        <p class="alert" role="alert">{{ passwordError() }}</p>
+      }
+
+      <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" novalidate>
+        <div class="field">
+          <label for="currentPassword">Mot de passe actuel</label>
+          <input id="currentPassword" type="password" formControlName="currentPassword"
+                 autocomplete="current-password"
+                 [class.field__input--error]="showPasswordError('currentPassword')">
+          @if (showPasswordError('currentPassword')) {
+            <small class="field__error">Obligatoire pour confirmer votre identite.</small>
+          }
+        </div>
+        <div class="field">
+          <label for="newPassword">Nouveau mot de passe</label>
+          <input id="newPassword" type="password" formControlName="newPassword"
+                 autocomplete="new-password"
+                 [class.field__input--error]="showPasswordError('newPassword')">
+          @if (showPasswordError('newPassword')) {
+            <small class="field__error">Au moins 8 caracteres, dont une lettre et un chiffre.</small>
+          }
+        </div>
+        <button type="submit" class="btn btn--ghost" [disabled]="passwordSubmitting()">
+          {{ passwordSubmitting() ? 'Modification...' : 'Modifier le mot de passe' }}
+        </button>
+      </form>
+    </article>
+
+  </div>
+</section>

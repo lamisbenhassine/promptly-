@@ -1,0 +1,76 @@
+<section class="users">
+
+  <header class="users__header">
+    <div>
+      <h1>Utilisateurs</h1>
+      <p class="users__subtitle">Gestion des comptes, des roles et des statuts.</p>
+    </div>
+    <button type="button" class="btn btn--ghost" (click)="reload()" [disabled]="loading()">
+      Actualiser
+    </button>
+  </header>
+
+  @if (infoMessage()) {
+    <p class="alert alert--success" role="status">{{ infoMessage() }}</p>
+  }
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  <div class="panel">
+    @if (loading()) {
+      <p class="users__empty">Chargement...</p>
+    } @else if (users().length === 0) {
+      <p class="users__empty">Aucun utilisateur.</p>
+    } @else {
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Adresse</th>
+              <th>Role</th>
+              <th>Statut</th>
+              <th>Inscrit le</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users(); track user.id) {
+              <tr>
+                <td>{{ user.firstName }} {{ user.lastName }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                  <select
+                    class="users__select"
+                    [ngModel]="user.role"
+                    (ngModelChange)="changeRole(user, $event)"
+                    [disabled]="pendingId() === user.id">
+                    @for (role of roles; track role) {
+                      <option [ngValue]="role">{{ roleLabels[role] }}</option>
+                    }
+                  </select>
+                </td>
+                <td>
+                  <span class="badge" [class.badge--ok]="user.enabled"
+                                      [class.badge--ko]="!user.enabled">
+                    {{ user.enabled ? 'Actif' : 'Desactive' }}
+                  </span>
+                </td>
+                <td>{{ user.createdAt | date:'dd/MM/yyyy' }}</td>
+                <td>
+                  <button type="button" class="btn btn--ghost btn--small"
+                          (click)="toggleStatus(user)"
+                          [disabled]="pendingId() === user.id || isCurrentUser(user)"
+                          [title]="isCurrentUser(user) ? 'Vous ne pouvez pas desactiver votre propre compte ici' : ''">
+                    {{ user.enabled ? 'Desactiver' : 'Reactiver' }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</section>

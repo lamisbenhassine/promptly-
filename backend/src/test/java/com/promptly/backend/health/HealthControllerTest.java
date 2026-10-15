@@ -14,6 +14,7 @@ import javax.sql.DataSource;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -24,8 +25,15 @@ import org.springframework.test.web.servlet.MockMvc;
  * @WebMvcTest ne demarre que la couche web : aucune connexion MySQL reelle
  * n'est necessaire, le DataSource est remplace par un mock. Les tests peuvent
  * donc s'executer meme si le serveur MySQL est arrete.
+ *
+ * <p>{@code addFilters = false} desactive la chaine de filtres de securite.
+ * Ces tests portent uniquement sur la logique du controleur ; le fait que
+ * /api/health soit bien accessible sans authentification est verifie par
+ * {@code SecurityRulesIntegrationTest}, qui charge la configuration de
+ * securite reelle.</p>
  */
 @WebMvcTest(HealthController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class HealthControllerTest {
 
     @Autowired

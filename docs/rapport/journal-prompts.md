@@ -296,6 +296,68 @@ spontanément le fichier de test généré par l'outil tiers.
 
 ---
 
+## Phase 1 — Authentification et gestion des utilisateurs
+
+### P-006 — Conception et implémentation du module d'authentification
+
+**Date :** 15 octobre 2026
+**Objectif :** concevoir puis réaliser l'inscription, la connexion JWT, le profil
+et l'administration des comptes.
+
+**Décisions prises avant implémentation :**
+- stockage du jeton dans `localStorage` (limite XSS documentée) ;
+- tout nouveau compte est `ETUDIANT` ; seul un `ADMIN` peut promouvoir ;
+- premier administrateur créé au démarrage via variables d'environnement ;
+- périmètre complet (noyau + page d'administration).
+
+**Résultat obtenu :** backend Spring Security 6 (JWT JJWT 0.13.0, BCrypt) et
+frontend Angular (formulaires réactifs, intercepteur, gardes de route).
+
+**Problèmes constatés et corrections :**
+
+1. **BOM UTF-8** (`illegal character: '\ufeff'`). `Set-Content -Encoding UTF8`
+   de PowerShell a écrit un BOM que le compilateur Java refuse. Correction :
+   réécriture du fichier en UTF-8 sans BOM.
+2. **`@WebMvcTest` + filtre JWT.** `JwtAuthenticationFilter` annoté
+   `@Component` était chargé dans le contexte réduit des tests de
+   `HealthController`, sans le `JwtService` correspondant. Correction : le
+   filtre n'est plus un bean, il est instancié dans `SecurityConfig`.
+3. **Protection du dernier administrateur faussée.** Les variables
+   d'environnement `PROMPTLY_ADMIN_*` ont une priorité supérieure à
+   `application-test.properties`. `AdminInitializer` créait donc un second
+   administrateur pendant les tests. Correction : `@Profile("!test")` sur
+   l'initialiseur ; les tests créent eux-mêmes l'administrateur dont ils ont
+   besoin.
+
+**Tests effectués :**
+
+```
+.\mvnw.cmd test
+  → Tests run: 31, Failures: 0, Errors: 0 — BUILD SUCCESS
+
+npm test -- --watch=false --browsers=ChromeHeadless
+  → TOTAL: 2 SUCCESS
+
+npm run build
+  → Application bundle generation complete (chunks login, register, profile, users)
+
+GET  /api/health              → 200, database UP
+GET  /api/auth/me (sans jeton) → 401
+POST /api/auth/register        → 201, role ETUDIANT
+POST /api/auth/login           → 200, jeton JWT (3 segments)
+GET  /api/users (ETUDIANT)     → 403
+GET  /api/users (ADMIN)        → 200, liste paginée
+Affichage /admin/utilisateurs  → 2 comptes, bouton Desactiver grisé sur le compte courant
+```
+
+**Analyse critique :** l'IA a produit une structure de sécurité cohérente
+(DTO sans mot de passe, rôle forcé côté serveur, messages 401 génériques).
+Les trois corrections n'ont été identifiées que par exécution réelle. La
+priorité des variables d'environnement sur les fichiers de profil est un
+piège de Spring Boot que le modèle n'a pas anticipé.
+
+---
+
 ## Modèle d'entrée pour les phases suivantes
 
 ```markdown

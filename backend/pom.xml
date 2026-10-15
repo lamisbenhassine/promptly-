@@ -24,6 +24,10 @@
 
     <properties>
         <java.version>17</java.version>
+        <!-- JJWT n'est pas gere par la nomenclature Spring Boot : sa version
+             doit etre fixee explicitement. 0.13.0 est la derniere version
+             publiee sur Maven Central (verifiee le 15/10/2026). -->
+        <jjwt.version>0.13.0</jjwt.version>
     </properties>
 
     <dependencies>
@@ -45,6 +49,34 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
+        <!-- Authentification, autorisation et hachage BCrypt des mots de passe -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- Generation et verification des jetons JWT.
+             jjwt-api   : interfaces utilisees dans le code
+             jjwt-impl  : implementation, requise seulement a l'execution
+             jjwt-jackson : serialisation JSON des revendications du jeton -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- Pilote JDBC MySQL : necessaire seulement a l'execution -->
         <dependency>
             <groupId>com.mysql</groupId>
@@ -64,6 +96,21 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Annotations de test de securite : @WithMockUser, @WithAnonymousUser -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Base en memoire utilisee par les tests d'integration, afin de ne pas
+             dependre d'un serveur MySQL actif ni d'alterer les donnees reelles -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

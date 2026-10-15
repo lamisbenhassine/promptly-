@@ -22,7 +22,30 @@
           </span>
         }
       }
+
+      @if (isAdmin()) {
+        <a class="nav__link" routerLink="/admin/utilisateurs" routerLinkActive="nav__link--active">
+          Utilisateurs
+        </a>
+      }
     </nav>
+
+    <div class="navbar__actions">
+      @if (isAuthenticated()) {
+        @if (user(); as u) {
+          <a class="navbar__user" routerLink="/profil">
+            <span class="navbar__name">{{ u.firstName }} {{ u.lastName }}</span>
+            <span class="navbar__role">{{ roleLabels[u.role] }}</span>
+          </a>
+        }
+        <button type="button" class="btn btn--ghost btn--small" (click)="logout()">
+          Deconnexion
+        </button>
+      } @else {
+        <a class="nav__link" routerLink="/connexion">Connexion</a>
+        <a class="btn btn--small" routerLink="/inscription">Inscription</a>
+      }
+    </div>
 
   </div>
 </header>

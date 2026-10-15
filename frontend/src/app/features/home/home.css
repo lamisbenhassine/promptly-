@@ -79,35 +79,8 @@
   font-size: 0.95rem;
 }
 
-.badge {
-  display: inline-block;
-  padding: 0.2rem 0.6rem;
-  border-radius: 999px;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.badge--ok {
-  background: rgba(34, 197, 94, 0.14);
-  color: #4ade80;
-  border: 1px solid rgba(34, 197, 94, 0.35);
-}
-
-.badge--ko {
-  background: rgba(239, 68, 68, 0.14);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.35);
-}
-
-.alert {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.35);
-  color: #fca5a5;
-  border-radius: 10px;
-  padding: 0.85rem 1rem;
-  font-size: 0.92rem;
-}
+/* Les classes .badge et .alert sont definies globalement dans styles.css,
+   car elles sont partagees avec les pages d'authentification. */
 
 /* ---------------------------- Modules --------------------------- */
 .modules h2 {

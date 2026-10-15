@@ -92,14 +92,36 @@ Dossier : `docs/screenshots/10-tests/`
 6. **Légende.** Chaque figure doit comporter un numéro, un titre et une phrase
    expliquant ce qu'elle démontre.
 
-## 6.5 Captures des phases ultérieures
+## 6.5 Phase 1 — Authentification
+
+Dossier : `docs/screenshots/02-authentification/`
+
+| Figure | Nom de fichier | À cadrer | Démontre |
+|--------|----------------|----------|----------|
+| 6.22 | `auth_page_inscription.png` | Formulaire `/inscription` | Validation côté client (messages d'erreur) |
+| 6.23 | `auth_page_connexion.png` | Formulaire `/connexion` | Page de connexion |
+| 6.24 | `auth_navbar_connecte.png` | Barre après connexion administrateur | Nom, rôle, lien Utilisateurs, bouton Déconnexion |
+| 6.25 | `auth_page_profil.png` | Page `/profil` | Modification du profil et du mot de passe |
+| 6.26 | `auth_page_admin.png` | Page `/admin/utilisateurs` | Liste, sélecteur de rôle, bouton Désactiver grisé sur le compte courant |
+| 6.27 | `auth_postman_login.png` | Postman : `POST /api/auth/login` | Jeton JWT renvoyé |
+| 6.28 | `auth_postman_403.png` | Postman : `GET /api/users` avec un jeton ETUDIANT | Refus 403 |
+| 6.29 | `auth_tests_backend.png` | Sortie `Tests run: 31, Failures: 0` | Validation automatisée du module |
+
+Dossier complémentaire : `docs/screenshots/08-ia-developpement/`
+
+| Figure | Nom de fichier | À cadrer | Démontre |
+|--------|----------------|----------|----------|
+| 6.30 | `auth_correction_bom.png` | Erreur `\ufeff` puis fichier réécrit sans BOM | Correction d'un artefact PowerShell |
+| 6.31 | `auth_correction_admin_initializer.png` | Annotation `@Profile("!test")` et commentaire associé | Priorité des variables d'environnement sur `application-test.properties` |
+
+## 6.6 Captures des phases ultérieures
 
 Les dossiers suivants sont créés mais vides. Leur contenu sera défini au début de
 chaque module.
 
 | Dossier | Module correspondant |
 |---------|---------------------|
-| `02-authentification/` | Inscription, connexion, rôles, restrictions d'accès |
+| `03-cours/` | Gestion des cours |
 | `03-cours/` | Gestion des cours |
 | `04-chapitres/` | Gestion des chapitres |
 | `05-evaluations/` | Quiz et résultats |

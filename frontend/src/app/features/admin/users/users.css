@@ -1,0 +1,36 @@
+.users {
+  padding: 2.5rem 0 3rem;
+}
+
+.users__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.users__header h1 {
+  font-size: 1.6rem;
+}
+
+.users__subtitle {
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+
+.users__empty {
+  color: var(--color-text-muted);
+  padding: 1rem 0;
+}
+
+.users__select {
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  background: rgba(2, 8, 20, 0.6);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+}

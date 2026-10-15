@@ -310,7 +310,48 @@ Aucun débordement horizontal ni chevauchement n'a été constaté.
 
 **Bilan : les treize critères de validation de la phase 0 sont satisfaits.**
 
-## 5.9 Limites de la validation actuelle
+## 5.9 Validation du module 1 — Authentification
+
+Les tests backend portent désormais sur 31 cas (2 de la phase 0 + 8 unitaires
+de `UserService` + 21 d'intégration de la chaîne de sécurité).
+
+Commande :
+
+```powershell
+cd backend
+.\mvnw.cmd test
+```
+
+Résultat observé le 15 octobre 2026 :
+
+```
+Tests run: 31, Failures: 0, Errors: 0, Skipped: 0
+BUILD SUCCESS
+```
+
+Vérifications manuelles complémentaires :
+
+| N° | Critère | Résultat observé |
+|----|---------|------------------|
+| A1 | `/api/health` reste public | `200`, `database: UP` |
+| A2 | `/api/auth/me` sans jeton | `401` |
+| A3 | Inscription | `201`, rôle forcé à `ETUDIANT` |
+| A4 | Connexion | jeton JWT à 3 segments |
+| A5 | Liste des utilisateurs en ETUDIANT | `403` |
+| A6 | Liste des utilisateurs en ADMIN | `200` |
+| A7 | Page `/admin/utilisateurs` | 2 comptes affichés ; bouton « Désactiver » grisé sur le compte courant |
+| A8 | Compilation frontend | succès, chunks `login`, `register`, `profile`, `users` |
+
+Trois anomalies ont été détectées puis corrigées pendant cette phase
+(BOM UTF-8, filtre JWT dans `@WebMvcTest`, priorité des variables
+d'environnement sur `application-test.properties`). Le détail figure dans
+`journal-prompts.md` (entrée P-006).
+
+[À INSÉRER : Capture des 31 tests backend — `auth_tests_backend.png`]
+[À INSÉRER : Capture de la page d'administration — `auth_page_admin.png`]
+[À INSÉRER : Capture du 403 dans Postman — `auth_postman_403.png`]
+
+## 5.10 Limites de la validation actuelle
 
 Par souci d'exactitude, les points suivants n'ont **pas** été vérifiés :
 
