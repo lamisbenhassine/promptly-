@@ -63,6 +63,11 @@ public class UserService {
     public void changePassword(String email, ChangePasswordRequest request) {
         User user = findByEmail(email);
 
+        if (user.getAuthProvider() == AuthProvider.GOOGLE) {
+            throw new BusinessRuleException(
+                    "Ce compte utilise Google : le mot de passe se change cote Google.");
+        }
+
         if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
             throw new BusinessRuleException("Le mot de passe actuel est incorrect");
         }

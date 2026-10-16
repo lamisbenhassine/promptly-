@@ -1,0 +1,113 @@
+<section class="auth">
+  <div class="auth__card quiz-form-card">
+
+    <h1 class="auth__title">
+      {{ editingId() ? 'Modifier le quiz' : 'Nouveau quiz' }}
+    </h1>
+    <p class="auth__subtitle">
+      QCM rattache a un cours, avec au moins une bonne reponse par question.
+    </p>
+
+    @if (errorMessage()) {
+      <p class="alert" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+      <div class="field">
+        <label for="title">Titre</label>
+        <input id="title" type="text" formControlName="title"
+               [class.field__input--error]="showError('title')">
+      </div>
+
+      <div class="field">
+        <label for="description">Description</label>
+        <textarea id="description" rows="3" formControlName="description"
+                  [class.field__input--error]="showError('description')"></textarea>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="courseId">Cours</label>
+          <select id="courseId" formControlName="courseId"
+                  [class.field__input--error]="showError('courseId')">
+            <option [ngValue]="0" disabled>Selectionnez un cours</option>
+            @for (course of courses(); track course.id) {
+              <option [ngValue]="course.id">{{ course.title }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="chapterId">Chapitre (optionnel)</label>
+          <select id="chapterId" formControlName="chapterId">
+            <option [ngValue]="null">Aucun</option>
+            @for (chapter of chapters(); track chapter.id) {
+              <option [ngValue]="chapter.id">{{ chapter.position }}. {{ chapter.title }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>
+          <input type="checkbox" formControlName="published">
+          Publier le quiz (ouvert aux etudiants)
+        </label>
+      </div>
+
+      <div formArrayName="questions" class="questions">
+        <div class="questions__header">
+          <h2>Questions</h2>
+          <button type="button" class="btn btn--ghost" (click)="addQuestion()">
+            Ajouter une question
+          </button>
+        </div>
+
+        @for (question of questions.controls; track $index; let qi = $index) {
+          <article class="panel question" [formGroupName]="qi">
+            <div class="question__top">
+              <h3>Question {{ qi + 1 }}</h3>
+              <button type="button" class="btn btn--ghost"
+                      (click)="removeQuestion(qi)" [disabled]="questions.length <= 1">
+                Retirer
+              </button>
+            </div>
+
+            <div class="field">
+              <label [attr.for]="'q-text-' + qi">Enonce</label>
+              <textarea [id]="'q-text-' + qi" rows="2" formControlName="text"></textarea>
+            </div>
+
+            <div formArrayName="choices" class="choices">
+              @for (choice of choicesAt(qi).controls; track $index; let ci = $index) {
+                <div class="choice-row" [formGroupName]="ci">
+                  <input type="text" formControlName="text" placeholder="Choix de reponse">
+                  <label class="choice-correct">
+                    <input type="checkbox" formControlName="correct">
+                    Bonne
+                  </label>
+                  <button type="button" class="btn btn--ghost"
+                          (click)="removeChoice(qi, ci)"
+                          [disabled]="choicesAt(qi).length <= 2">
+                    X
+                  </button>
+                </div>
+              }
+              <button type="button" class="btn btn--ghost" (click)="addChoice(qi)">
+                Ajouter un choix
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+
+      <button type="submit" class="btn btn--block" [disabled]="submitting()">
+        {{ submitting() ? 'Enregistrement...' : (editingId() ? 'Enregistrer' : 'Creer le quiz') }}
+      </button>
+    </form>
+
+    <p class="auth__footer">
+      <a routerLink="/quiz">Retour aux quiz</a>
+    </p>
+  </div>
+</section>

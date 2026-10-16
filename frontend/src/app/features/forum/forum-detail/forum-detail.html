@@ -1,0 +1,130 @@
+<section class="detail">
+
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (post(); as p) {
+    <p class="detail__back"><a routerLink="/forum">&larr; Forum</a></p>
+
+    <header class="detail__header">
+      <div>
+        <div class="detail__tags">
+          <span class="badge badge--neutral">{{ labels[p.category] }}</span>
+          @if (p.locked) {
+            <span class="badge badge--ko">Verrouille</span>
+          }
+        </div>
+        <h1>{{ p.title }}</h1>
+        <p class="detail__meta">
+          {{ p.author.firstName }} {{ p.author.lastName }}
+          &middot; {{ p.createdAt | date:'dd/MM/yyyy HH:mm' }}
+        </p>
+      </div>
+
+      @if (canManagePost()) {
+        <div class="detail__actions">
+          @if (isAuthor() || canModerate()) {
+            <a class="btn" [routerLink]="['/forum', p.id, 'modifier']">Modifier</a>
+          }
+          @if (canModerate()) {
+            <button type="button" class="btn btn--ghost" (click)="toggleLock()" [disabled]="locking()">
+              {{ p.locked ? 'Deverrouiller' : 'Verrouiller' }}
+            </button>
+          }
+          <button type="button" class="btn btn--ghost" (click)="removePost()" [disabled]="deleting()">
+            {{ deleting() ? 'Suppression...' : 'Supprimer' }}
+          </button>
+        </div>
+      }
+    </header>
+
+    <article class="panel fb-post">
+      <p class="detail__text">{{ p.content }}</p>
+
+      @if (fileUrl(p.imageUrl); as image) {
+        <img class="fb-post__image" [src]="image" [alt]="p.title">
+      }
+
+      <div class="fb-stats">
+        <span>
+          @for (type of reactionTypes; track type) {
+            @if (reactionCount(type) > 0) {
+              <span class="fb-stats__chip" title="{{ reactionLabels[type] }}">
+                {{ reactionEmoji[type] }} {{ reactionCount(type) }}
+              </span>
+            }
+          }
+          @if (p.reactions.total === 0) {
+            <span class="fb-stats__empty">Aucune reaction</span>
+          }
+        </span>
+        <span>{{ p.commentCount }} commentaire(s)</span>
+      </div>
+
+      <div class="fb-actions">
+        <div class="fb-react">
+          <button type="button" class="fb-actions__btn"
+                  [class.fb-actions__btn--active]="!!p.reactions.myReaction"
+                  (click)="showReactions.set(!showReactions())"
+                  [disabled]="reacting()">
+            @if (p.reactions.myReaction; as mine) {
+              {{ reactionEmoji[mine] }} {{ reactionLabels[mine] }}
+            } @else {
+              👍 J'aime
+            }
+          </button>
+          @if (showReactions()) {
+            <div class="fb-react__picker" role="menu">
+              @for (type of reactionTypes; track type) {
+                <button type="button" class="fb-react__emoji"
+                        [class.fb-react__emoji--active]="p.reactions.myReaction === type"
+                        (click)="react(type)"
+                        [title]="reactionLabels[type]">
+                  {{ reactionEmoji[type] }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <h2 class="panel__title">Commentaires ({{ p.commentCount }})</h2>
+
+      @if (!p.comments || p.comments.length === 0) {
+        <p class="detail__text">Aucun commentaire pour le moment.</p>
+      } @else {
+        <ul class="comment-list">
+          @for (comment of p.comments; track comment.id) {
+            <li class="comment">
+              <div class="comment__meta">
+                <strong>{{ comment.author.firstName }} {{ comment.author.lastName }}</strong>
+                <span>{{ comment.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                @if (canManageComment(comment.author.id)) {
+                  <button type="button" class="link-btn" (click)="removeComment(comment.id)">
+                    Supprimer
+                  </button>
+                }
+              </div>
+              <p class="comment__body">{{ comment.content }}</p>
+            </li>
+          }
+        </ul>
+      }
+
+      @if (p.locked) {
+        <p class="detail__text">Ce sujet est verrouille : les nouveaux commentaires sont fermes.</p>
+      } @else {
+        <form class="comment-form" [formGroup]="commentForm" (ngSubmit)="submitComment()">
+          <label for="comment">Votre reponse</label>
+          <textarea id="comment" rows="4" formControlName="content"></textarea>
+          <button type="submit" class="btn" [disabled]="submitting()">
+            {{ submitting() ? 'Envoi...' : 'Commenter' }}
+          </button>
+        </form>
+      }
+    </article>
+  }
+</section>

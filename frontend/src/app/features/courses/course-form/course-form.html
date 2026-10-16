@@ -5,7 +5,7 @@
       {{ editingId() ? 'Modifier le cours' : 'Nouveau cours' }}
     </h1>
     <p class="auth__subtitle">
-      Titre, categorie, description et objectifs d'apprentissage.
+      Titre, categorie, description, image de couverture et PDF.
     </p>
 
     @if (errorMessage()) {
@@ -47,6 +47,26 @@
                   [class.field__input--error]="showError('learningObjectives')"></textarea>
         @if (showError('learningObjectives')) {
           <small class="field__error">Entre 10 et 2000 caracteres.</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="image">Image de couverture (JPG, PNG, WebP — max 5 Mo)</label>
+        <input id="image" type="file" accept="image/jpeg,image/png,image/webp,image/gif"
+               (change)="onImageSelected($event)">
+        @if (imagePreview()) {
+          <img [src]="imagePreview()" alt="Apercu" class="upload-preview">
+        }
+      </div>
+
+      <div class="field">
+        <label for="pdf">Ressource PDF (max 20 Mo)</label>
+        <input id="pdf" type="file" accept="application/pdf" (change)="onPdfSelected($event)">
+        @if (currentPdfUrl()) {
+          <small class="field__hint">
+            PDF actuel :
+            <a [href]="currentPdfUrl()" target="_blank" rel="noopener">ouvrir</a>
+          </small>
         }
       </div>
 

@@ -39,6 +39,11 @@ export interface LoginPayload {
   password: string;
 }
 
+/** Corps de POST /api/auth/google. */
+export interface GoogleLoginPayload {
+  idToken: string;
+}
+
 export interface UpdateProfilePayload {
   firstName: string;
   lastName: string;

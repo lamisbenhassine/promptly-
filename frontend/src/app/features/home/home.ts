@@ -25,12 +25,12 @@ export class Home implements OnInit {
 
   /** Modules prevus, affiches sur la page d'accueil. */
   protected readonly modules = [
-    { title: 'Cours', description: 'Java, Spring Boot, Angular, algorithmique.' },
-    { title: 'Chapitres', description: 'Contenus structures et exemples de code.' },
-    { title: 'Evaluations', description: 'Quiz a choix multiples et scores.' },
-    { title: 'Forum', description: 'Entraide et discussions techniques.' },
-    { title: 'Reclamations', description: 'Suivi des demandes des etudiants.' },
-    { title: 'Assistant IA', description: 'Fonctionnalites a definir (Ollama ou API externe).' }
+    { title: 'Cours', description: 'Java, Spring Boot, Angular, algorithmique.', done: true },
+    { title: 'Chapitres', description: 'Contenus structures et exemples de code.', done: true },
+    { title: 'Evaluations', description: 'Quiz a choix multiples et scores.', done: true },
+    { title: 'Forum', description: 'Entraide et discussions techniques.', done: true },
+    { title: 'Reclamations', description: 'Suivi des demandes des etudiants.', done: true },
+    { title: 'Assistant IA', description: 'Fonctionnalites a definir (Ollama ou API externe).', done: false }
   ];
 
   ngOnInit(): void {

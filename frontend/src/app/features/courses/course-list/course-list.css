@@ -20,6 +20,12 @@
   font-size: 0.92rem;
 }
 
+.courses__actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
 .courses__empty {
   color: var(--color-text-muted);
   padding: 1.5rem 0;
@@ -64,6 +70,19 @@
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+  overflow: hidden;
+}
+
+.card__cover-link {
+  display: block;
+  margin: -1.25rem -1.25rem 0.4rem;
+}
+
+.card__cover {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
 }
 
 .card__top {

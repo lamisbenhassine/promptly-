@@ -1,0 +1,123 @@
+<section class="detail">
+
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+    <a routerLink="/quiz">Retour aux quiz</a>
+  } @else if (quiz(); as q) {
+
+    <p class="detail__back"><a routerLink="/quiz">&larr; Catalogue des quiz</a></p>
+
+    <header class="detail__header">
+      <div>
+        <div class="detail__tags">
+          <span class="badge badge--neutral">{{ q.courseTitle }}</span>
+          @if (!q.published) {
+            <span class="badge badge--ko">Brouillon</span>
+          }
+        </div>
+        <h1>{{ q.title }}</h1>
+        <p class="detail__meta">
+          {{ q.questionCount }} question(s)
+          @if (q.chapterTitle) {
+            &middot; chapitre : {{ q.chapterTitle }}
+          }
+        </p>
+      </div>
+
+      @if (canManage()) {
+        <div class="detail__actions">
+          <a class="btn" [routerLink]="['/quiz', q.id, 'modifier']">Modifier</a>
+          <button type="button" class="btn btn--ghost" (click)="remove()" [disabled]="deleting()">
+            {{ deleting() ? 'Suppression...' : 'Supprimer' }}
+          </button>
+        </div>
+      }
+    </header>
+
+    <article class="panel">
+      <h2 class="panel__title">Description</h2>
+      <p class="detail__text">{{ q.description }}</p>
+    </article>
+
+    @if (lastResult(); as result) {
+      <article class="panel result">
+        <h2 class="panel__title">Resultat</h2>
+        <p class="result__score">{{ result.scorePercent }} %</p>
+        <p class="detail__text">
+          {{ result.correctCount }} / {{ result.totalQuestions }} bonnes reponses
+        </p>
+      </article>
+    }
+
+    @if (q.questions; as questions) {
+      <article class="panel">
+        <h2 class="panel__title">
+          {{ canManage() ? 'Questions (avec bonnes reponses)' : 'Passer le quiz' }}
+        </h2>
+
+        @for (question of questions; track question.id) {
+          <div class="question-block">
+            <h3>{{ question.position }}. {{ question.text }}</h3>
+            <ul class="choice-list">
+              @for (choice of question.choices; track choice.id) {
+                <li>
+                  @if (canManage()) {
+                    <span [class.choice--correct]="choice.correct">
+                      {{ choice.text }}
+                      @if (choice.correct) { (bonne reponse) }
+                    </span>
+                  } @else {
+                    <label class="choice-option"
+                           [class.choice-option--selected]="isSelected(question.id, choice.id)">
+                      <input type="radio"
+                             [name]="'q-' + question.id"
+                             [checked]="isSelected(question.id, choice.id)"
+                             (change)="selectChoice(question.id, choice.id)">
+                      {{ choice.text }}
+                    </label>
+                  }
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
+        @if (!canManage() && q.published) {
+          <button type="button" class="btn" (click)="submit()" [disabled]="submitting()">
+            {{ submitting() ? 'Envoi...' : 'Soumettre mes reponses' }}
+          </button>
+        }
+      </article>
+    }
+
+    @if (myAttempts().length > 0) {
+      <article class="panel">
+        <h2 class="panel__title">Mes tentatives</h2>
+        <ul class="attempt-list">
+          @for (attempt of myAttempts(); track attempt.id) {
+            <li>
+              {{ attempt.scorePercent }} %
+              ({{ attempt.correctCount }}/{{ attempt.totalQuestions }})
+              &mdash; {{ attempt.submittedAt | date:'dd/MM/yyyy HH:mm' }}
+            </li>
+          }
+        </ul>
+      </article>
+    }
+
+    @if (canManage() && allAttempts().length > 0) {
+      <article class="panel">
+        <h2 class="panel__title">Resultats des etudiants</h2>
+        <ul class="attempt-list">
+          @for (attempt of allAttempts(); track attempt.id) {
+            <li>
+              {{ attempt.studentFirstName }} {{ attempt.studentLastName }}
+              &mdash; {{ attempt.scorePercent }} %
+              &mdash; {{ attempt.submittedAt | date:'dd/MM/yyyy HH:mm' }}
+            </li>
+          }
+        </ul>
+      </article>
+    }
+  }
+</section>

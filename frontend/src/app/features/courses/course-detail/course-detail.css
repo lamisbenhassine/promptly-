@@ -41,3 +41,47 @@
   white-space: pre-wrap;
   line-height: 1.7;
 }
+
+.course-cover {
+  width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  margin-bottom: 1.25rem;
+}
+
+.pdf-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.ai-summary {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: rgba(56, 189, 248, 0.06);
+}
+
+.ai-summary__title {
+  font-size: 1.05rem;
+  margin-bottom: 0.25rem;
+}
+
+.ai-summary__meta,
+.ai-summary__hint {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.ai-summary__text {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--color-text);
+}

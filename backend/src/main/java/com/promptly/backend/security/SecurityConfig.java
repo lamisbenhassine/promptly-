@@ -74,6 +74,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/google").permitAll()
+                        // Lecture des fichiers : les balises <img> n'envoient pas
+                        // de jeton JWT. L'upload reste protege.
+                        .requestMatchers(HttpMethod.GET, "/api/files/**").permitAll()
 
                         // Toute autre route exige une authentification. Les
                         // restrictions par role sont appliquees par @PreAuthorize.

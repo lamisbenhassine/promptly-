@@ -3,7 +3,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { extractErrorMessage } from '../../../core/models/api-error.model';
-import { CATEGORY_LABELS, Course } from '../../../core/models/course.model';
+import { CATEGORY_LABELS, Chapter, Course, PdfSummary } from '../../../core/models/course.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { CourseService } from '../../../core/services/course.service';
 
@@ -21,9 +21,15 @@ export class CourseDetail implements OnInit {
   private readonly authService = inject(AuthService);
 
   protected readonly labels = CATEGORY_LABELS;
+  protected readonly fileUrl = CourseService.fileUrl;
   protected readonly course = signal<Course | null>(null);
+  protected readonly chapters = signal<Chapter[]>([]);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly deleting = signal(false);
+
+  protected readonly summarizing = signal(false);
+  protected readonly summary = signal<PdfSummary | null>(null);
+  protected readonly summaryError = signal<string | null>(null);
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -33,7 +39,10 @@ export class CourseDetail implements OnInit {
     }
 
     this.courseService.get(id).subscribe({
-      next: (course) => this.course.set(course),
+      next: (course) => {
+        this.course.set(course);
+        this.loadChapters(course.id);
+      },
       error: (error) => this.errorMessage.set(
         extractErrorMessage(error, 'Ce cours est introuvable ou n\'est pas encore publie.'))
     });
@@ -47,8 +56,25 @@ export class CourseDetail implements OnInit {
     return user.role === 'ADMIN' || user.id === course.instructor.id;
   }
 
+  protected summarizePdf(course: Course): void {
+    this.summaryError.set(null);
+    this.summarizing.set(true);
+
+    this.courseService.summarizeCoursePdf(course.id).subscribe({
+      next: (result) => {
+        this.summary.set(result);
+        this.summarizing.set(false);
+      },
+      error: (error) => {
+        this.summary.set(null);
+        this.summaryError.set(extractErrorMessage(error, 'Le resume automatique a echoue'));
+        this.summarizing.set(false);
+      }
+    });
+  }
+
   protected remove(course: Course): void {
-    if (!confirm(`Supprimer le cours « ${course.title} » ?`)) {
+    if (!confirm(`Supprimer le cours « ${course.title} » et tous ses chapitres ?`)) {
       return;
     }
 
@@ -59,6 +85,13 @@ export class CourseDetail implements OnInit {
         this.errorMessage.set(extractErrorMessage(error, 'La suppression a echoue'));
         this.deleting.set(false);
       }
+    });
+  }
+
+  private loadChapters(courseId: number): void {
+    this.courseService.listChapters(courseId).subscribe({
+      next: (chapters) => this.chapters.set(chapters),
+      error: () => this.chapters.set([])
     });
   }
 }

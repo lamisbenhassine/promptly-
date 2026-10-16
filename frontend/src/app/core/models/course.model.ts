@@ -41,6 +41,8 @@ export interface Course {
   learningObjectives: string;
   category: CourseCategory;
   published: boolean;
+  imageUrl: string | null;
+  pdfUrl: string | null;
   instructor: InstructorSummary;
   createdAt: string;
   updatedAt: string;
@@ -53,4 +55,31 @@ export interface CoursePayload {
   category: CourseCategory;
   published: boolean;
   instructorId?: number | null;
+}
+
+export interface Chapter {
+  id: number;
+  courseId: number;
+  title: string;
+  content: string;
+  codeExample: string | null;
+  position: number;
+  pdfUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ChapterPayload {
+  title: string;
+  content: string;
+  codeExample?: string | null;
+  position?: number | null;
+}
+
+/** Reponse de POST /api/ai/.../summarize-pdf (Ollama). */
+export interface PdfSummary {
+  summary: string;
+  model: string;
+  sourceTitle: string;
+  truncatedHint: boolean;
 }

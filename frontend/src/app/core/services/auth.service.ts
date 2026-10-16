@@ -5,6 +5,7 @@ import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   AuthResult,
+  GoogleLoginPayload,
   LoginPayload,
   RegisterPayload,
   Role,
@@ -54,6 +55,12 @@ export class AuthService {
 
   login(payload: LoginPayload): Observable<AuthResult> {
     return this.http.post<AuthResult>(`${environment.apiBaseUrl}/auth/login`, payload)
+      .pipe(tap((result) => this.storeSession(result)));
+  }
+
+  /** Connexion / inscription via le jeton d'identite Google. */
+  loginWithGoogle(payload: GoogleLoginPayload): Observable<AuthResult> {
+    return this.http.post<AuthResult>(`${environment.apiBaseUrl}/auth/google`, payload)
       .pipe(tap((result) => this.storeSession(result)));
   }
 

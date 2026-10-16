@@ -1,7 +1,29 @@
-<app-navbar />
+<div
+  class="shell"
+  [class.shell--auth]="isAuthShell()"
+  [class.shell--sidebar-open]="!isAuthShell() && sidebarOpen()">
 
-<main class="main">
-  <router-outlet />
-</main>
+  @if (!isAuthShell()) {
+    <app-sidebar
+      [links]="links()"
+      [open]="sidebarOpen()"
+      [showAdmin]="!!isAdmin()"
+      (closed)="closeSidebar()" />
+  }
 
-<app-footer />
+  <div class="shell__main">
+    @if (!isAuthShell()) {
+      <app-navbar
+        [sidebarOpen]="sidebarOpen()"
+        (menuToggle)="toggleSidebar()" />
+    }
+
+    <main [class]="isAuthShell() ? 'auth-shell' : 'main'">
+      <router-outlet />
+    </main>
+
+    @if (!isAuthShell()) {
+      <app-footer />
+    }
+  </div>
+</div>

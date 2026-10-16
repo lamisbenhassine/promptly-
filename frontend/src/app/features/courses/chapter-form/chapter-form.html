@@ -1,0 +1,88 @@
+<section class="auth">
+  <div class="auth__card" style="max-width: 720px;">
+
+    <h1 class="auth__title">
+      {{ chapterId() ? 'Modifier le chapitre' : 'Nouveau chapitre' }}
+    </h1>
+    <p class="auth__subtitle">
+      Choisissez le cours, puis renseignez le contenu pedagogique.
+    </p>
+
+    @if (errorMessage()) {
+      <p class="alert" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+      <div class="field">
+        <label for="courseId">Cours</label>
+        <select id="courseId" formControlName="courseId"
+                [class.field__input--error]="showError('courseId')">
+          <option [ngValue]="0" disabled>Selectionnez un cours</option>
+          @for (course of courses(); track course.id) {
+            <option [ngValue]="course.id">
+              {{ course.title }}
+              @if (!course.published) { (brouillon) }
+            </option>
+          }
+        </select>
+        @if (showError('courseId')) {
+          <small class="field__error">Selectionnez le cours du chapitre.</small>
+        }
+        @if (courseLocked()) {
+          <small class="field__hint">Le cours ne peut pas etre change a la modification.</small>
+        }
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="title">Titre</label>
+          <input id="title" type="text" formControlName="title"
+                 [class.field__input--error]="showError('title')">
+          @if (showError('title')) {
+            <small class="field__error">Entre 3 et 150 caracteres.</small>
+          }
+        </div>
+        <div class="field">
+          <label for="position">Ordre d'affichage</label>
+          <input id="position" type="number" min="1" formControlName="position"
+                 [class.field__input--error]="showError('position')">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="content">Contenu</label>
+        <textarea id="content" rows="8" formControlName="content"
+                  [class.field__input--error]="showError('content')"></textarea>
+        @if (showError('content')) {
+          <small class="field__error">Au moins 10 caracteres.</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="codeExample">Exemple de code (optionnel)</label>
+        <textarea id="codeExample" rows="6" formControlName="codeExample"
+                  class="code-block" style="width:100%;"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="pdf">PDF du chapitre (optionnel, max 20 Mo)</label>
+        <input id="pdf" type="file" accept="application/pdf" (change)="onPdfSelected($event)">
+        @if (currentPdfUrl()) {
+          <small class="field__hint">
+            PDF actuel :
+            <a [href]="currentPdfUrl()" target="_blank" rel="noopener">ouvrir</a>
+          </small>
+        }
+      </div>
+
+      <button type="submit" class="btn btn--block" [disabled]="submitting()">
+        {{ submitting() ? 'Enregistrement...' : (chapterId() ? 'Enregistrer' : 'Creer le chapitre') }}
+      </button>
+    </form>
+
+    <p class="auth__footer">
+      <a [routerLink]="backLink()">Retour</a>
+    </p>
+  </div>
+</section>

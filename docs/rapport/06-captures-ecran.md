@@ -120,22 +120,53 @@ Dossier : `docs/screenshots/03-cours/`
 
 | Figure | Nom de fichier | À cadrer | Démontre |
 |--------|----------------|----------|----------|
-| 6.32 | `cours_catalogue.png` | `/cours` avec filtres et au moins une carte | Catalogue et classement par technologie |
-| 6.33 | `cours_detail.png` | `/cours/1` avec description et objectifs | Fiche pédagogique |
-| 6.34 | `cours_formulaire.png` | `/cours/nouveau` | Formulaire de création |
+| 6.32 | `cours_catalogue.png` | `/cours` avec filtres et carte + image de couverture | Catalogue et classement par technologie |
+| 6.33 | `cours_detail.png` | `/cours/1` avec couverture, PDF et liste de chapitres | Fiche pédagogique |
+| 6.34 | `cours_formulaire.png` | `/cours/nouveau` avec champs image et PDF | Formulaire de création |
 | 6.35 | `cours_postman_403.png` | `POST /api/courses` avec un jeton ETUDIANT | Refus de création |
 | 6.36 | `cours_brouillon_404.png` | `GET /api/courses/{id}` d'un brouillon en ETUDIANT | 404 plutôt que 403 |
-| 6.37 | `cours_tests_backend.png` | Sortie des 18 tests cours | Validation automatisée |
+| 6.37 | `cours_tests_backend.png` | Sortie des tests cours / chapitres | Validation automatisée |
+| 6.38 | `chapitre_detail.png` | `/cours/1/chapitres/1` avec contenu et PDF | Lecture d'un chapitre |
 
-## 6.7 Captures des phases ultérieures
+## 6.7 Phase 4 — Évaluations / quiz
+
+Dossier : `docs/screenshots/05-evaluations/`
+
+| N° | Fichier | Scène | Ce qu'elle démontre |
+|----|---------|-------|---------------------|
+| 6.41 | `quiz_catalogue.png` | `/quiz` avec au moins une carte | Catalogue filtrable par cours |
+| 6.42 | `quiz_formulaire.png` | `/quiz/nouveau` avec questions/choix | Création d'un QCM |
+| 6.43 | `quiz_passage.png` | `/quiz/1` côté étudiant | Passage sans bonnes réponses visibles |
+| 6.44 | `quiz_score.png` | Résultat après soumission | Calcul du score |
+| 6.45 | `quiz_tests_backend.png` | Sortie `QuizRulesIntegrationTest` | Validation automatisée |
+
+## 6.8 Phase 5 — Forum
+
+Dossier : `docs/screenshots/06-forum/`
+
+| N° | Fichier | Scène | Ce qu'elle démontre |
+|----|---------|-------|---------------------|
+| 6.51 | `forum_liste.png` | `/forum` avec filtres et sujets | Catalogue du forum |
+| 6.52 | `forum_sujet.png` | `/forum/1` avec commentaires | Discussion complète |
+| 6.53 | `forum_verrouille.png` | Sujet verrouillé par un enseignant | Modération |
+| 6.54 | `forum_tests_backend.png` | Sortie `ForumRulesIntegrationTest` | Validation automatisée |
+
+## 6.9 Phase 6 — Réclamations
+
+Dossier : `docs/screenshots/07-reclamations/`
+
+| N° | Fichier | Scène | Ce qu'elle démontre |
+|----|---------|-------|---------------------|
+| 6.61 | `reclamations_liste.png` | `/reclamations` filtrée par statut | Suivi côté étudiant / admin |
+| 6.62 | `reclamation_depot.png` | `/reclamations/nouveau` | Formulaire de dépôt |
+| 6.63 | `reclamation_traitement.png` | `/reclamations/1` côté admin | Changement de statut + réponse |
+| 6.64 | `reclamations_tests_backend.png` | Sortie `ComplaintRulesIntegrationTest` | Validation automatisée |
+
+## 6.10 Captures des phases ultérieures
 
 Les dossiers suivants sont créés mais vides. Leur contenu sera défini au début de
 chaque module.
 
 | Dossier | Module correspondant |
 |---------|---------------------|
-| `04-chapitres/` | Gestion des chapitres |
-| `05-evaluations/` | Quiz et résultats |
-| `06-forum/` | Publications et commentaires |
-| `07-reclamations/` | Dépôt et traitement des réclamations |
 | `09-ia-application/` | Modèle en exécution, requêtes, réponses, résultat dans Promptly |

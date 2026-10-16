@@ -25,6 +25,7 @@ export class CourseList implements OnInit {
 
   protected readonly categories = COURSE_CATEGORIES;
   protected readonly labels = CATEGORY_LABELS;
+  protected readonly fileUrl = CourseService.fileUrl;
   protected readonly canManage = this.authService.canManageCourses;
 
   protected readonly courses = signal<Course[]>([]);

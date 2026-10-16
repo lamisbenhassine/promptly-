@@ -131,3 +131,8 @@
   border-radius: 999px;
   padding: 0.15rem 0.55rem;
 }
+
+.card__badge--done {
+  color: var(--color-success);
+  border-color: rgba(74, 222, 128, 0.45);
+}

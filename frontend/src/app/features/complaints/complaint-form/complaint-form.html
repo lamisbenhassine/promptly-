@@ -1,0 +1,51 @@
+<section class="auth">
+  <div class="auth__card" style="max-width: 720px;">
+
+    <h1 class="auth__title">Nouvelle reclamation</h1>
+    <p class="auth__subtitle">
+      Decrivez le probleme : un administrateur le traitera ensuite.
+    </p>
+
+    @if (errorMessage()) {
+      <p class="alert" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+      <div class="field">
+        <label for="subject">Objet</label>
+        <input id="subject" type="text" formControlName="subject"
+               [class.field__input--error]="showError('subject')">
+        @if (showError('subject')) {
+          <small class="field__error">Entre 5 et 180 caracteres.</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="category">Categorie</label>
+        <select id="category" formControlName="category">
+          @for (category of categories; track category) {
+            <option [ngValue]="category">{{ labels[category] }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="description">Description</label>
+        <textarea id="description" rows="8" formControlName="description"
+                  [class.field__input--error]="showError('description')"></textarea>
+        @if (showError('description')) {
+          <small class="field__error">Au moins 10 caracteres.</small>
+        }
+      </div>
+
+      <button type="submit" class="btn btn--block" [disabled]="submitting()">
+        {{ submitting() ? 'Envoi...' : 'Deposer la reclamation' }}
+      </button>
+    </form>
+
+    <p class="auth__footer">
+      <a routerLink="/reclamations">Retour</a>
+    </p>
+  </div>
+</section>

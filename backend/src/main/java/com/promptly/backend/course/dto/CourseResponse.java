@@ -12,6 +12,8 @@ public record CourseResponse(
         String learningObjectives,
         CourseCategory category,
         boolean published,
+        String imageUrl,
+        String pdfUrl,
         InstructorSummary instructor,
         Instant createdAt,
         Instant updatedAt
@@ -25,8 +27,16 @@ public record CourseResponse(
                 course.getLearningObjectives(),
                 course.getCategory(),
                 course.isPublished(),
+                toPublicUrl(course.getImagePath()),
+                toPublicUrl(course.getPdfPath()),
                 InstructorSummary.from(course.getInstructor()),
                 course.getCreatedAt(),
                 course.getUpdatedAt());
+    }
+
+    private static String toPublicUrl(String relativePath) {
+        return relativePath == null || relativePath.isBlank()
+                ? null
+                : "/api/files/" + relativePath;
     }
 }

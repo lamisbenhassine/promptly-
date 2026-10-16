@@ -1,0 +1,65 @@
+<section class="search">
+  <header class="search__header">
+    <h1>Recherche</h1>
+    @if (query()) {
+      <p class="search__subtitle">
+        Resultats pour « {{ query() }} »
+        @if (!loading()) {
+          — {{ total() }} trouve(s)
+        }
+      </p>
+    } @else {
+      <p class="search__subtitle">Saisissez un terme dans la barre de recherche.</p>
+    }
+  </header>
+
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (loading()) {
+    <p class="search__empty">Recherche en cours...</p>
+  } @else if (query() && total() === 0) {
+    <p class="search__empty">Aucun resultat.</p>
+  } @else {
+    @if (courses().length > 0) {
+      <article class="panel">
+        <h2 class="panel__title">Cours ({{ courses().length }})</h2>
+        <ul class="search__list">
+          @for (course of courses(); track course.id) {
+            <li>
+              <a [routerLink]="['/cours', course.id]">{{ course.title }}</a>
+            </li>
+          }
+        </ul>
+      </article>
+    }
+
+    @if (quizzes().length > 0) {
+      <article class="panel">
+        <h2 class="panel__title">Quiz ({{ quizzes().length }})</h2>
+        <ul class="search__list">
+          @for (quiz of quizzes(); track quiz.id) {
+            <li>
+              <a [routerLink]="['/quiz', quiz.id]">{{ quiz.title }}</a>
+              <span class="search__meta">{{ quiz.courseTitle }}</span>
+            </li>
+          }
+        </ul>
+      </article>
+    }
+
+    @if (posts().length > 0) {
+      <article class="panel">
+        <h2 class="panel__title">Forum ({{ posts().length }})</h2>
+        <ul class="search__list">
+          @for (post of posts(); track post.id) {
+            <li>
+              <a [routerLink]="['/forum', post.id]">{{ post.title }}</a>
+            </li>
+          }
+        </ul>
+      </article>
+    }
+  }
+</section>

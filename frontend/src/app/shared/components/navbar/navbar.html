@@ -1,48 +1,52 @@
-<header class="navbar">
-  <div class="navbar__inner">
+<header class="topbar">
+  <div class="topbar__inner">
 
-    <a class="brand" routerLink="/">
-      <span class="brand__mark">&lt;/&gt;</span>
-      <span class="brand__name">Promptly</span>
-    </a>
+    <div class="topbar__left">
+      <button
+        type="button"
+        class="topbar__menu"
+        [class.topbar__menu--open]="sidebarOpen()"
+        (click)="toggleMenu($event)"
+        [attr.aria-expanded]="sidebarOpen()"
+        [attr.aria-label]="sidebarOpen() ? 'Fermer le menu' : 'Ouvrir le menu'">
+        <span></span><span></span><span></span>
+      </button>
 
-    <nav class="nav" aria-label="Navigation principale">
-      @for (link of links; track link.path) {
-        @if (link.enabled) {
-          <a
-            class="nav__link"
-            [routerLink]="link.path"
-            routerLinkActive="nav__link--active"
-            [routerLinkActiveOptions]="{ exact: true }">
-            {{ link.label }}
-          </a>
-        } @else {
-          <span class="nav__link nav__link--disabled" title="Module a venir">
-            {{ link.label }}
-          </span>
-        }
-      }
+      <a class="brand" routerLink="/cours">
+        <span class="brand__mark">&lt;/&gt;</span>
+        <span class="brand__name">Promptly</span>
+      </a>
+    </div>
 
-      @if (isAdmin()) {
-        <a class="nav__link" routerLink="/admin/utilisateurs" routerLinkActive="nav__link--active">
-          Utilisateurs
-        </a>
-      }
-    </nav>
+    <form class="topbar__search" (ngSubmit)="search()" role="search">
+      <input
+        type="search"
+        name="q"
+        placeholder="Rechercher cours, quiz, forum..."
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        aria-label="Recherche">
+      <button type="submit" class="btn btn--small">Rechercher</button>
+    </form>
 
-    <div class="navbar__actions">
+    <div class="topbar__actions">
       @if (isAuthenticated()) {
         @if (user(); as u) {
-          <a class="navbar__user" routerLink="/profil">
-            <span class="navbar__name">{{ u.firstName }} {{ u.lastName }}</span>
-            <span class="navbar__role">{{ roleLabels[u.role] }}</span>
+          <a class="topbar__user" routerLink="/profil" title="Mon profil">
+            <span class="topbar__avatar" aria-hidden="true">
+              {{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}
+            </span>
+            <span class="topbar__user-text">
+              <span class="topbar__name">{{ u.firstName }} {{ u.lastName }}</span>
+              <span class="topbar__role">{{ roleLabels[u.role] }}</span>
+            </span>
           </a>
         }
         <button type="button" class="btn btn--ghost btn--small" (click)="logout()">
           Deconnexion
         </button>
       } @else {
-        <a class="nav__link" routerLink="/connexion">Connexion</a>
+        <a class="topbar__login" routerLink="/connexion">Connexion</a>
         <a class="btn btn--small" routerLink="/inscription">Inscription</a>
       }
     </div>

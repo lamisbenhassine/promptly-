@@ -1,0 +1,66 @@
+<section class="courses">
+
+  <header class="courses__header">
+    <div>
+      <h1>Reclamations</h1>
+      <p class="courses__subtitle">
+        @if (isAdmin()) {
+          Traitement et suivi des demandes des utilisateurs.
+        } @else {
+          Deposez une demande et suivez son traitement.
+        }
+      </p>
+    </div>
+    <a class="btn" routerLink="/reclamations/nouveau">Nouvelle reclamation</a>
+  </header>
+
+  <div class="filters" role="group" aria-label="Filtrer par statut">
+    <button type="button" class="chip"
+            [class.chip--active]="selectedStatus() === null"
+            (click)="filterBy(null)">
+      Tous
+    </button>
+    @for (status of statuses; track status) {
+      <button type="button" class="chip"
+              [class.chip--active]="selectedStatus() === status"
+              (click)="filterBy(status)">
+        {{ statusLabels[status] }}
+      </button>
+    }
+  </div>
+
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (loading()) {
+    <p class="courses__empty">Chargement...</p>
+  } @else if (complaints().length === 0) {
+    <p class="courses__empty">Aucune reclamation.</p>
+  } @else {
+    <div class="post-list">
+      @for (c of complaints(); track c.id) {
+        <article class="post-card">
+          <div class="post-card__top">
+            <span class="badge badge--neutral">{{ categoryLabels[c.category] }}</span>
+            <span class="badge"
+                  [class.badge--ok]="c.status === 'RESOLUE'"
+                  [class.badge--ko]="c.status === 'REJETEE' || c.status === 'OUVERTE'"
+                  [class.badge--neutral]="c.status === 'EN_COURS'">
+              {{ statusLabels[c.status] }}
+            </span>
+          </div>
+          <h2 class="post-card__title">
+            <a [routerLink]="['/reclamations', c.id]">{{ c.subject }}</a>
+          </h2>
+          <p class="post-card__meta">
+            @if (isAdmin()) {
+              {{ c.author.firstName }} {{ c.author.lastName }} &middot;
+            }
+            {{ c.updatedAt | date:'dd/MM/yyyy HH:mm' }}
+          </p>
+        </article>
+      }
+    </div>
+  }
+</section>

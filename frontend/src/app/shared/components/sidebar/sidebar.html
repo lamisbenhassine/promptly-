@@ -1,0 +1,54 @@
+<aside
+  class="sidebar"
+  [class.sidebar--open]="open()"
+  [attr.aria-hidden]="!open()"
+  aria-label="Menu lateral">
+
+  <div class="sidebar__brand">
+    <a class="brand" routerLink="/cours">
+      <span class="brand__mark">&lt;/&gt;</span>
+      <span class="brand__name">Promptly</span>
+    </a>
+    <button type="button" class="sidebar__close" (click)="close()" aria-label="Fermer le menu">
+      &times;
+    </button>
+  </div>
+
+  <nav class="sidebar__nav">
+    <p class="sidebar__section">Navigation</p>
+    @for (link of links(); track link.path) {
+      @if (link.enabled) {
+        <a class="sidebar__link"
+           [routerLink]="link.path"
+           routerLinkActive="sidebar__link--active"
+           [routerLinkActiveOptions]="{ exact: link.path === '/' }">
+          <span class="sidebar__icon" aria-hidden="true">{{ link.icon }}</span>
+          <span>{{ link.label }}</span>
+        </a>
+      } @else {
+        <span class="sidebar__link sidebar__link--disabled" title="Module a venir">
+          <span class="sidebar__icon" aria-hidden="true">{{ link.icon }}</span>
+          <span>{{ link.label }}</span>
+        </span>
+      }
+    }
+
+    @if (showAdmin()) {
+      <p class="sidebar__section">Administration</p>
+      <a class="sidebar__link"
+         routerLink="/admin/utilisateurs"
+         routerLinkActive="sidebar__link--active">
+        <span class="sidebar__icon" aria-hidden="true">👥</span>
+        <span>Utilisateurs</span>
+      </a>
+    }
+  </nav>
+</aside>
+
+@if (open()) {
+  <button
+    type="button"
+    class="sidebar__backdrop"
+    (click)="close()"
+    aria-label="Fermer le menu"></button>
+}

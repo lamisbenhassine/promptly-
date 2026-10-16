@@ -63,10 +63,10 @@ avant que le suivant ne soit abordé.
 | 0 | Template et fondation | Architecture technique, communication Angular/Spring Boot, page d'accueil | **Réalisé** |
 | 1 | Authentification et utilisateurs | Inscription, connexion, profils, rôles, restrictions d'accès | **Réalisé** |
 | 2 | Gestion des cours | CRUD des cours, catégories, affectation aux enseignants | **Réalisé** |
-| 3 | Gestion des chapitres | Découpage des cours, contenus et exemples de code | Planifié |
-| 4 | Évaluations et quiz | QCM, soumission des réponses, calcul des scores | Planifié |
-| 5 | Forum et communauté | Publications, commentaires, modération | Planifié |
-| 6 | Réclamations | Dépôt, traitement et suivi du statut des réclamations | Planifié |
+| 3 | Gestion des chapitres | Découpage des cours, contenus et exemples de code | **Réalisé** |
+| 4 | Évaluations et quiz | QCM, soumission des réponses, calcul des scores | **Réalisé** |
+| 5 | Forum et communauté | Publications, commentaires, modération | **Réalisé** |
+| 6 | Réclamations | Dépôt, traitement et suivi du statut des réclamations | **Réalisé** |
 | 7 | Intégration de l'IA | Fonctionnalité d'assistance par modèle de langage | Planifié |
 
 > **Remarque méthodologique.** Conformément aux règles de rédaction retenues, ce

@@ -2,6 +2,8 @@ package com.promptly.backend.user;
 
 import java.time.Instant;
 
+import org.hibernate.annotations.ColumnDefault;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -49,9 +51,15 @@ public class User {
     /**
      * Mot de passe hache avec BCrypt. Le mot de passe en clair n'est jamais
      * stocke, et ce champ n'est jamais expose par l'API.
+     * Pour un compte Google, une valeur aleatoire inutilisable est stockee.
      */
     @Column(nullable = false, length = 100)
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    @ColumnDefault("'LOCAL'")
+    @Column(nullable = false, length = 20)
+    private AuthProvider authProvider = AuthProvider.LOCAL;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -72,11 +80,17 @@ public class User {
     }
 
     public User(String firstName, String lastName, String email, String password, Role role) {
+        this(firstName, lastName, email, password, role, AuthProvider.LOCAL);
+    }
+
+    public User(String firstName, String lastName, String email, String password,
+                Role role, AuthProvider authProvider) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.authProvider = authProvider;
     }
 
     /** Horodatage automatique a l'insertion. */
@@ -122,6 +136,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public AuthProvider getAuthProvider() {
+        return authProvider;
+    }
+
+    public void setAuthProvider(AuthProvider authProvider) {
+        this.authProvider = authProvider;
     }
 
     public Role getRole() {

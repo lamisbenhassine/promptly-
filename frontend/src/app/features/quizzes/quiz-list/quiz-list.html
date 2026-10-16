@@ -1,0 +1,58 @@
+<section class="courses">
+
+  <header class="courses__header">
+    <div>
+      <h1>Quiz</h1>
+      <p class="courses__subtitle">Evaluations a choix multiples par cours.</p>
+    </div>
+    @if (canManage()) {
+      <a class="btn" routerLink="/quiz/nouveau">Nouveau quiz</a>
+    }
+  </header>
+
+  <div class="filters" role="group" aria-label="Filtrer par cours">
+    <button type="button" class="chip"
+            [class.chip--active]="selectedCourseId() === null"
+            (click)="filterBy(null)">
+      Tous les cours
+    </button>
+    @for (course of courses(); track course.id) {
+      <button type="button" class="chip"
+              [class.chip--active]="selectedCourseId() === course.id"
+              (click)="filterBy(course.id)">
+        {{ course.title }}
+      </button>
+    }
+  </div>
+
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (loading()) {
+    <p class="courses__empty">Chargement...</p>
+  } @else if (quizzes().length === 0) {
+    <p class="courses__empty">Aucun quiz disponible.</p>
+  } @else {
+    <div class="courses__grid">
+      @for (quiz of quizzes(); track quiz.id) {
+        <article class="card">
+          <div class="card__top">
+            <span class="badge badge--neutral">{{ quiz.courseTitle }}</span>
+            @if (!quiz.published) {
+              <span class="badge badge--ko">Brouillon</span>
+            }
+          </div>
+          <h2 class="card__title">
+            <a [routerLink]="['/quiz', quiz.id]">{{ quiz.title }}</a>
+          </h2>
+          <p class="card__text">{{ quiz.description }}</p>
+          <p class="card__meta">
+            {{ quiz.questionCount }} question(s)
+            &middot; mis a jour le {{ quiz.updatedAt | date:'dd/MM/yyyy' }}
+          </p>
+        </article>
+      }
+    </div>
+  }
+</section>

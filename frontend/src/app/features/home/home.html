@@ -56,7 +56,9 @@
       <article class="card">
         <h3 class="card__title">{{ module.title }}</h3>
         <p class="card__text">{{ module.description }}</p>
-        <span class="card__badge">A venir</span>
+        <span class="card__badge" [class.card__badge--done]="module.done">
+          {{ module.done ? 'Disponible' : 'A venir' }}
+        </span>
       </article>
     }
   </div>

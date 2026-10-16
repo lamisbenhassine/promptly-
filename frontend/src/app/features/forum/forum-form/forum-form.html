@@ -1,0 +1,62 @@
+<section class="auth">
+  <div class="auth__card" style="max-width: 720px;">
+
+    <h1 class="auth__title">
+      {{ editingId() ? 'Modifier le sujet' : 'Nouveau sujet' }}
+    </h1>
+    <p class="auth__subtitle">
+      Texte, image et discussions — comme une publication Facebook.
+    </p>
+
+    @if (errorMessage()) {
+      <p class="alert" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+      <div class="field">
+        <label for="title">Titre</label>
+        <input id="title" type="text" formControlName="title"
+               [class.field__input--error]="showError('title')">
+        @if (showError('title')) {
+          <small class="field__error">Entre 5 et 180 caracteres.</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="category">Categorie</label>
+        <select id="category" formControlName="category">
+          @for (category of categories; track category) {
+            <option [ngValue]="category">{{ labels[category] }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="content">Message</label>
+        <textarea id="content" rows="8" formControlName="content"
+                  [class.field__input--error]="showError('content')"></textarea>
+        @if (showError('content')) {
+          <small class="field__error">Au moins 10 caracteres.</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="image">Image (JPG, PNG, WebP, GIF — max 5 Mo)</label>
+        <input id="image" type="file" accept="image/jpeg,image/png,image/webp,image/gif"
+               (change)="onImageSelected($event)">
+        @if (imagePreview()) {
+          <img [src]="imagePreview()" alt="Apercu" class="upload-preview">
+        }
+      </div>
+
+      <button type="submit" class="btn btn--block" [disabled]="submitting()">
+        {{ submitting() ? 'Publication...' : (editingId() ? 'Enregistrer' : 'Publier') }}
+      </button>
+    </form>
+
+    <p class="auth__footer">
+      <a routerLink="/forum">Retour au forum</a>
+    </p>
+  </div>
+</section>

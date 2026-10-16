@@ -57,6 +57,14 @@ public class Course {
     @JoinColumn(name = "instructor_id", nullable = false)
     private User instructor;
 
+    /** Chemin relatif de l'image de couverture (ex. course-images/uuid.jpg). */
+    @Column(length = 255)
+    private String imagePath;
+
+    /** Chemin relatif du PDF de ressources du cours. */
+    @Column(length = 255)
+    private String pdfPath;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -138,6 +146,22 @@ public class Course {
 
     public void setInstructor(User instructor) {
         this.instructor = instructor;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
+
+    public String getPdfPath() {
+        return pdfPath;
+    }
+
+    public void setPdfPath(String pdfPath) {
+        this.pdfPath = pdfPath;
     }
 
     public Instant getCreatedAt() {

@@ -6,7 +6,10 @@
       <p class="courses__subtitle">Catalogue classe par technologie.</p>
     </div>
     @if (canManage()) {
-      <a class="btn" routerLink="/cours/nouveau">Nouveau cours</a>
+      <div class="courses__actions">
+        <a class="btn btn--ghost" routerLink="/chapitres/nouveau">Nouveau chapitre</a>
+        <a class="btn" routerLink="/cours/nouveau">Nouveau cours</a>
+      </div>
     }
   </header>
 
@@ -37,6 +40,11 @@
     <div class="courses__grid">
       @for (course of courses(); track course.id) {
         <article class="card">
+          @if (fileUrl(course.imageUrl); as image) {
+            <a [routerLink]="['/cours', course.id]" class="card__cover-link">
+              <img class="card__cover" [src]="image" [alt]="course.title">
+            </a>
+          }
           <div class="card__top">
             <span class="badge badge--neutral">{{ labels[course.category] }}</span>
             @if (!course.published) {

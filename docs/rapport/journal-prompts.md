@@ -400,6 +400,97 @@ a appliquées de manière cohérente avec le module d'authentification. Elles
 devaient toutefois être spécifiées explicitement : l'IA ne les invente pas
 correctement si on lui demande seulement un « CRUD de cours ».
 
+### P-020 — Image, PDF et chapitres sur les cours
+
+**Date :** 15 octobre 2026
+**Objectif :** enrichir le module cours avec image de couverture, PDF et
+chapitres rattaches.
+
+**Prompt exact :**
+> « add img to the cours and upload pdf to the cours and chapter to the cours »
+
+**Résultat obtenu :**
+- Stockage local (`FileStorageService`, `GET /api/files/**` public)
+- Upload image/PDF sur `Course` ; CRUD chapitres sous `/api/courses/{id}/chapters`
+  avec PDF optionnel par chapitre
+- Frontend : formulaires multipart, aperçu couverture, pages chapitre
+  (liste / detail / form)
+
+**Problèmes constatés :** import `AuthService` dupliqué dans `course-list.ts`
+(corrige avant build).
+
+**Tests effectués :**
+
+```
+.\mvnw.cmd test "-Dtest=ChapterRulesIntegrationTest,CourseServiceTest,SecurityRulesIntegrationTest"
+  → BUILD SUCCESS
+npx ng build --configuration=development
+  → Application bundle generation complete
+```
+
+**Analyse critique :** le decouplage chemin DB / fichier disque est adapte a
+un projet pedagogique ; les uploads restent hors Git (`uploads/`).
+
+### P-021 — Module evaluations / quiz
+
+**Date :** 15 octobre 2026
+**Objectif :** implementer la gestion des quiz (QCM, soumission, scores).
+
+**Prompt exact :**
+> « MAKE THE NEXT GESTION »
+
+**Resultat obtenu :**
+- Entites `Quiz`, `Question`, `Choice`, `QuizAttempt`
+- API `/api/quizzes` (CRUD enseignant/admin, passage etudiant, historique)
+- Frontend : liste, formulaire multi-questions, passage, scores
+- Les bonnes reponses ne sont exposees qu'aux enseignants / admin
+
+**Tests effectues :**
+
+```
+.\mvnw.cmd test "-Dtest=QuizRulesIntegrationTest"  → BUILD SUCCESS
+```
+
+### P-022 — Module forum
+
+**Date :** 15 octobre 2026
+**Objectif :** implementer le forum (publications, commentaires, moderation).
+
+**Prompt exact :**
+> « next gestion »
+
+**Resultat obtenu :**
+- Entites `ForumPost`, `ForumComment` ; categories ; verrouillage
+- API `/api/forum/posts` (CRUD, commentaires, lock enseignant/admin)
+- Frontend : liste, creation, detail + commentaires
+- Auteur ou moderateur pour editer/supprimer ; sujet verrouille = plus de commentaires
+
+**Tests effectues :**
+
+```
+.\mvnw.cmd test "-Dtest=ForumRulesIntegrationTest"  → BUILD SUCCESS
+```
+
+### P-023 — Module reclamations
+
+**Date :** 15 octobre 2026
+**Objectif :** implementer le depot et le traitement des reclamations.
+
+**Prompt exact :**
+> « good make the next one »
+
+**Resultat obtenu :**
+- Entite `Complaint` (categories, statuts OUVERTE/EN_COURS/RESOLUE/REJETEE)
+- API `/api/complaints` : depot pour tous, liste filtree, traitement ADMIN
+- Frontend : liste, formulaire, detail + panneau de traitement admin
+- Visibilite : auteur voit ses demandes ; admin voit tout
+
+**Tests effectues :**
+
+```
+.\mvnw.cmd test "-Dtest=ComplaintRulesIntegrationTest"  → BUILD SUCCESS
+```
+
 ---
 
 ## Modèle d'entrée pour les phases suivantes

@@ -1,0 +1,43 @@
+.search {
+  padding: 2.5rem 0 3rem;
+}
+
+.search__header {
+  margin-bottom: 1.5rem;
+}
+
+.search__header h1 {
+  font-size: 1.6rem;
+}
+
+.search__subtitle {
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+
+.search__empty {
+  color: var(--color-text-muted);
+  padding: 1rem 0;
+}
+
+.search__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.search__list a {
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.search__list a:hover {
+  text-decoration: underline;
+}
+
+.search__meta {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}

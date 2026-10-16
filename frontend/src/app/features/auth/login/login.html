@@ -1,6 +1,11 @@
 <section class="auth">
   <div class="auth__card">
 
+    <header class="auth__brand">
+      <span class="auth__mark" aria-hidden="true">&lt;/&gt;</span>
+      <span class="auth__brand-name">Promptly</span>
+    </header>
+
     <h1 class="auth__title">Connexion</h1>
     <p class="auth__subtitle">
       Accedez a votre espace Promptly.
@@ -12,6 +17,14 @@
 
     @if (errorMessage()) {
       <p class="alert" role="alert">{{ errorMessage() }}</p>
+    }
+
+    @if (googleEnabled) {
+      <div class="auth__google" #googleButton aria-label="Connexion avec Google"></div>
+
+      <div class="auth__divider" role="separator">
+        <span>ou</span>
+      </div>
     }
 
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>

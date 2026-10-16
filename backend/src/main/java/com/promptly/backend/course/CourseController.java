@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.promptly.backend.course.dto.CourseRequest;
 import com.promptly.backend.course.dto.CourseResponse;
@@ -27,10 +29,9 @@ import jakarta.validation.Valid;
 /**
  * Catalogue des cours.
  *
- * La lecture est ouverte a tout utilisateur authentifie (la visibilite des
- * brouillons est filtree dans le service). La creation, la modification et la
- * suppression sont reservees aux enseignants et administrateurs ; le service
- * refuse en plus qu'un enseignant touche au cours d'un collegue.
+ * La lecture est ouverte a tout utilisateur authentifie. La creation, la
+ * modification, la suppression et l'upload de fichiers sont reserves aux
+ * enseignants et administrateurs.
  */
 @RestController
 @RequestMapping("/api/courses")
@@ -71,6 +72,22 @@ public class CourseController {
                                  @PathVariable Long id,
                                  @Valid @RequestBody CourseRequest request) {
         return courseService.update(id, principal.getName(), request);
+    }
+
+    @PostMapping(path = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('ENSEIGNANT', 'ADMIN')")
+    public CourseResponse uploadImage(Principal principal,
+                                      @PathVariable Long id,
+                                      @RequestParam("file") MultipartFile file) {
+        return courseService.uploadImage(id, principal.getName(), file);
+    }
+
+    @PostMapping(path = "/{id}/pdf", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('ENSEIGNANT', 'ADMIN')")
+    public CourseResponse uploadPdf(Principal principal,
+                                    @PathVariable Long id,
+                                    @RequestParam("file") MultipartFile file) {
+        return courseService.uploadPdf(id, principal.getName(), file);
     }
 
     @DeleteMapping("/{id}")

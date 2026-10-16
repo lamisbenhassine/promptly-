@@ -7,6 +7,10 @@
 
     <p class="detail__back"><a routerLink="/cours">&larr; Catalogue</a></p>
 
+    @if (fileUrl(c.imageUrl); as image) {
+      <img class="course-cover" [src]="image" [alt]="c.title">
+    }
+
     <header class="detail__header">
       <div>
         <div class="detail__tags">
@@ -25,6 +29,9 @@
       @if (canManage(c)) {
         <div class="detail__actions">
           <a class="btn" [routerLink]="['/cours', c.id, 'modifier']">Modifier</a>
+          <a class="btn btn--ghost" [routerLink]="['/cours', c.id, 'chapitres', 'nouveau']">
+            Ajouter un chapitre
+          </a>
           <button type="button" class="btn btn--ghost" (click)="remove(c)" [disabled]="deleting()">
             {{ deleting() ? 'Suppression...' : 'Supprimer' }}
           </button>
@@ -40,6 +47,59 @@
     <article class="panel">
       <h2 class="panel__title">Objectifs d'apprentissage</h2>
       <p class="detail__text">{{ c.learningObjectives }}</p>
+    </article>
+
+    @if (fileUrl(c.pdfUrl); as pdf) {
+      <article class="panel">
+        <h2 class="panel__title">Ressource PDF</h2>
+        <div class="pdf-actions">
+          <a class="btn btn--ghost" [href]="pdf" target="_blank" rel="noopener">
+            Telecharger / ouvrir le PDF du cours
+          </a>
+          <button
+            type="button"
+            class="btn"
+            (click)="summarizePdf(c)"
+            [disabled]="summarizing()">
+            {{ summarizing() ? 'Resume en cours...' : 'Resumer automatiquement' }}
+          </button>
+        </div>
+
+        @if (summaryError()) {
+          <p class="alert" role="alert">{{ summaryError() }}</p>
+        }
+
+        @if (summary(); as s) {
+          <div class="ai-summary" role="status">
+            <h3 class="ai-summary__title">Resume IA</h3>
+            <p class="ai-summary__meta">Modele : {{ s.model }}</p>
+            @if (s.truncatedHint) {
+              <p class="ai-summary__hint">
+                Le PDF est long : seul le debut a ete envoye au modele.
+              </p>
+            }
+            <pre class="ai-summary__text">{{ s.summary }}</pre>
+          </div>
+        }
+      </article>
+    }
+
+    <article class="panel">
+      <h2 class="panel__title">Chapitres</h2>
+      @if (chapters().length === 0) {
+        <p class="detail__text">Aucun chapitre pour le moment.</p>
+      } @else {
+        <ul class="chapter-list">
+          @for (chapter of chapters(); track chapter.id) {
+            <li>
+              <a [routerLink]="['/cours', c.id, 'chapitres', chapter.id]">
+                <span class="chapter-list__pos">{{ chapter.position }}.</span>
+                <span>{{ chapter.title }}</span>
+              </a>
+            </li>
+          }
+        </ul>
+      }
     </article>
   }
 </section>

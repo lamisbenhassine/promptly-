@@ -1,0 +1,80 @@
+<section class="detail">
+
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (complaint(); as c) {
+    <p class="detail__back"><a routerLink="/reclamations">&larr; Reclamations</a></p>
+
+    <header class="detail__header">
+      <div>
+        <div class="detail__tags">
+          <span class="badge badge--neutral">{{ categoryLabels[c.category] }}</span>
+          <span class="badge"
+                [class.badge--ok]="c.status === 'RESOLUE'"
+                [class.badge--ko]="c.status === 'REJETEE' || c.status === 'OUVERTE'"
+                [class.badge--neutral]="c.status === 'EN_COURS'">
+            {{ statusLabels[c.status] }}
+          </span>
+        </div>
+        <h1>{{ c.subject }}</h1>
+        <p class="detail__meta">
+          {{ c.author.firstName }} {{ c.author.lastName }}
+          &middot; {{ c.createdAt | date:'dd/MM/yyyy HH:mm' }}
+        </p>
+      </div>
+
+      @if (canDelete()) {
+        <div class="detail__actions">
+          <button type="button" class="btn btn--ghost" (click)="remove()" [disabled]="deleting()">
+            {{ deleting() ? 'Suppression...' : 'Supprimer' }}
+          </button>
+        </div>
+      }
+    </header>
+
+    <article class="panel">
+      <h2 class="panel__title">Description</h2>
+      <p class="detail__text">{{ c.description }}</p>
+    </article>
+
+    @if (c.adminResponse) {
+      <article class="panel">
+        <h2 class="panel__title">Reponse de l'administration</h2>
+        <p class="detail__text">{{ c.adminResponse }}</p>
+        @if (c.handledBy) {
+          <p class="detail__meta">
+            Traitee par {{ c.handledBy.firstName }} {{ c.handledBy.lastName }}
+            @if (c.resolvedAt) {
+              le {{ c.resolvedAt | date:'dd/MM/yyyy HH:mm' }}
+            }
+          </p>
+        }
+      </article>
+    }
+
+    @if (isAdmin()) {
+      <article class="panel">
+        <h2 class="panel__title">Traiter la reclamation</h2>
+        <form class="status-form" [formGroup]="statusForm" (ngSubmit)="saveStatus()">
+          <div class="field">
+            <label for="status">Statut</label>
+            <select id="status" formControlName="status">
+              @for (status of statuses; track status) {
+                <option [ngValue]="status">{{ statusLabels[status] }}</option>
+              }
+            </select>
+          </div>
+          <div class="field">
+            <label for="adminResponse">Reponse (obligatoire pour Resolue / Rejetee)</label>
+            <textarea id="adminResponse" rows="4" formControlName="adminResponse"></textarea>
+          </div>
+          <button type="submit" class="btn" [disabled]="submitting()">
+            {{ submitting() ? 'Enregistrement...' : 'Enregistrer le traitement' }}
+          </button>
+        </form>
+      </article>
+    }
+  }
+</section>

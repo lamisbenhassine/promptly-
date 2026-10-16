@@ -77,6 +77,20 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Verification des jetons d'identite Google (Sign in with Google) -->
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>2.7.2</version>
+        </dependency>
+
+        <!-- Extraction du texte des PDF pour le resume via Ollama -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.5</version>
+        </dependency>
+
         <!-- Pilote JDBC MySQL : necessaire seulement a l'execution -->
         <dependency>
             <groupId>com.mysql</groupId>

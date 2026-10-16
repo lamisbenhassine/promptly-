@@ -21,9 +21,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.promptly.backend.chapter.ChapterRepository;
 import com.promptly.backend.common.exception.BusinessRuleException;
 import com.promptly.backend.common.exception.ResourceNotFoundException;
 import com.promptly.backend.course.dto.CourseRequest;
+import com.promptly.backend.storage.FileStorageService;
 import com.promptly.backend.user.Role;
 import com.promptly.backend.user.User;
 import com.promptly.backend.user.UserService;
@@ -35,7 +37,13 @@ class CourseServiceTest {
     private CourseRepository courseRepository;
 
     @Mock
+    private ChapterRepository chapterRepository;
+
+    @Mock
     private UserService userService;
+
+    @Mock
+    private FileStorageService fileStorageService;
 
     @InjectMocks
     private CourseService courseService;

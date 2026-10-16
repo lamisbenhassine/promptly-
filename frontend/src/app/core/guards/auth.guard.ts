@@ -26,6 +26,33 @@ export const authGuard: CanActivateFn = (_route, state) => {
 };
 
 /**
+ * Reserve les pages de connexion / inscription aux visiteurs non connectes.
+ * Un utilisateur deja authentifie est renvoye vers les cours.
+ */
+export const guestGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (!authService.isAuthenticated()) {
+    return true;
+  }
+
+  return router.createUrlTree(['/cours']);
+};
+
+/**
+ * Page d'entree : connexion si anonyme, cours si deja connecte.
+ */
+export const landingRedirectGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  return authService.isAuthenticated()
+    ? router.createUrlTree(['/cours'])
+    : router.createUrlTree(['/connexion']);
+};
+
+/**
  * Restreint une route a certains roles.
  *
  * S'utilise dans la table de routage : {@code canActivate: [authGuard, roleGuard(['ADMIN'])]}
@@ -41,6 +68,6 @@ export function roleGuard(allowedRoles: Role[]): CanActivateFn {
       return true;
     }
 
-    return router.createUrlTree(['/']);
+    return router.createUrlTree(['/cours']);
   };
 }
