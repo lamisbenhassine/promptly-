@@ -1,0 +1,141 @@
+<section class="detail">
+
+  <p class="detail__back"><a routerLink="/recrutement">← Recrutement</a></p>
+
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (offer(); as o) {
+    <header class="detail__header">
+      <div>
+        <div class="detail__tags">
+          <span class="badge badge--neutral">{{ contractLabels[o.contractType] }}</span>
+          @if (isAdmin()) {
+            <span class="badge" [class.badge--ok]="o.published" [class.badge--ko]="!o.published">
+              {{ o.published ? 'Publiee' : 'Brouillon' }}
+            </span>
+          }
+        </div>
+        <h1>{{ o.title }}</h1>
+        <p class="detail__meta">
+          @if (o.location) { {{ o.location }} · }
+          @if (o.deadline) { Limite : {{ o.deadline | date: 'dd/MM/yyyy' }} · }
+          Publiee le {{ o.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+        </p>
+      </div>
+      @if (isAdmin()) {
+        <div class="detail__actions">
+          <a class="btn btn--ghost" [routerLink]="['/recrutement', o.id, 'modifier']">Modifier</a>
+          <button type="button" class="btn btn--ghost" (click)="remove()" [disabled]="deleting()">
+            {{ deleting() ? 'Suppression...' : 'Supprimer' }}
+          </button>
+        </div>
+      }
+    </header>
+
+    <article class="panel">
+      <h2 class="panel__title">Description</h2>
+      <p class="detail__text">{{ o.description }}</p>
+      @if (o.skills) {
+        <h3 class="panel__subtitle">Competences</h3>
+        <p class="detail__text">{{ o.skills }}</p>
+      }
+      @if (o.experience) {
+        <h3 class="panel__subtitle">Experience</h3>
+        <p class="detail__text">{{ o.experience }}</p>
+      }
+    </article>
+
+    @if (!isAdmin()) {
+      <article class="panel">
+        <h2 class="panel__title">Postuler</h2>
+        @if (o.alreadyApplied) {
+          <p class="detail__meta">Vous avez deja postule a cette offre.</p>
+        } @else {
+          @if (applyError()) {
+            <p class="alert" role="alert">{{ applyError() }}</p>
+          }
+          @if (applySuccess()) {
+            <p class="alert alert--success">{{ applySuccess() }}</p>
+          }
+          <div class="field">
+            <label for="cv">CV (PDF)</label>
+            <input id="cv" type="file" accept="application/pdf,.pdf" (change)="onCvSelected($event)">
+          </div>
+          <div class="field">
+            <label for="message">Message (optionnel)</label>
+            <textarea id="message" rows="4"
+                      [ngModel]="coverLetter()"
+                      (ngModelChange)="coverLetter.set($event)"></textarea>
+          </div>
+          <button type="button" class="btn" (click)="apply()" [disabled]="applying()">
+            {{ applying() ? 'Envoi...' : 'Envoyer ma candidature' }}
+          </button>
+        }
+      </article>
+    }
+
+    @if (isAdmin()) {
+      <article class="panel">
+        <h2 class="panel__title">Candidatures ({{ applications().length }})</h2>
+        @if (applications().length === 0) {
+          <p class="detail__meta">Aucune candidature pour le moment.</p>
+        } @else {
+          <ul class="app-list">
+            @for (app of applications(); track app.id) {
+              <li class="app-card">
+                <div class="app-card__head">
+                  <strong>{{ app.applicant.firstName }} {{ app.applicant.lastName }}</strong>
+                  <span class="detail__meta">{{ app.applicant.email }}</span>
+                  <span class="badge badge--neutral">{{ statusLabels[app.status] }}</span>
+                </div>
+                @if (app.message) {
+                  <p class="detail__text">{{ app.message }}</p>
+                }
+                @if (app.matchScore !== null && app.matchScore !== undefined) {
+                  <p class="match">
+                    <span class="badge"
+                          [class.badge--ok]="app.matchScore >= 60"
+                          [class.badge--ko]="app.matchScore < 40"
+                          [class.badge--neutral]="app.matchScore >= 40 && app.matchScore < 60">
+                      Match {{ app.matchScore }}%
+                    </span>
+                    @if (app.matchProvider) {
+                      <span class="detail__meta">via {{ app.matchProvider }}</span>
+                    }
+                  </p>
+                  @if (app.matchedSkills) {
+                    <p class="detail__meta">Trouvees : {{ app.matchedSkills }}</p>
+                  }
+                  @if (app.missingSkills) {
+                    <p class="detail__meta">Manquantes : {{ app.missingSkills }}</p>
+                  }
+                  @if (app.experienceMatched !== null) {
+                    <p class="detail__meta">
+                      Experience : {{ app.experienceMatched ? 'OK' : 'non couverte' }}
+                    </p>
+                  }
+                }
+                <div class="app-card__actions">
+                  @if (fileUrl(app.cvUrl); as cv) {
+                    <a class="btn btn--ghost" [href]="cv" target="_blank" rel="noopener">Voir le CV</a>
+                  }
+                  <select
+                    [ngModel]="app.status"
+                    (ngModelChange)="updateStatus(app, $event)"
+                    aria-label="Statut candidature">
+                    @for (status of statuses; track status) {
+                      <option [value]="status">{{ statusLabels[status] }}</option>
+                    }
+                  </select>
+                </div>
+                <p class="detail__meta">{{ app.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+              </li>
+            }
+          </ul>
+        }
+      </article>
+    }
+  }
+</section>

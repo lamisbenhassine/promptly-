@@ -1,0 +1,84 @@
+<section class="auth">
+  <div class="auth__card" style="max-width: 720px;">
+
+    <h1 class="auth__title">{{ editId() ? 'Modifier l\'offre' : 'Nouvelle offre' }}</h1>
+    <p class="auth__subtitle">
+      Publiez une offre visible par les etudiants et enseignants.
+    </p>
+
+    @if (errorMessage()) {
+      <p class="alert" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+      <div class="field">
+        <label for="title">Titre</label>
+        <input id="title" type="text" formControlName="title"
+               [class.field__input--error]="showError('title')">
+        @if (showError('title')) {
+          <small class="field__error">Entre 5 et 180 caracteres.</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="description">Description</label>
+        <textarea id="description" rows="8" formControlName="description"
+                  [class.field__input--error]="showError('description')"></textarea>
+        @if (showError('description')) {
+          <small class="field__error">Au moins 20 caracteres.</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="skills">Competences requises</label>
+        <textarea id="skills" rows="3" formControlName="skills"
+                  placeholder="Ex: Java, Spring Boot, Angular, SQL"
+                  [class.field__input--error]="showError('skills')"></textarea>
+        @if (showError('skills')) {
+          <small class="field__error">Listez les competences separees par des virgules.</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="experience">Experience requise (optionnel)</label>
+        <textarea id="experience" rows="2" formControlName="experience"
+                  placeholder="Ex: 2 ans en developpement Java"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="location">Lieu (optionnel)</label>
+        <input id="location" type="text" formControlName="location">
+      </div>
+
+      <div class="field">
+        <label for="contractType">Type de contrat</label>
+        <select id="contractType" formControlName="contractType">
+          @for (type of contractTypes; track type) {
+            <option [value]="type">{{ contractLabels[type] }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="deadline">Date limite (optionnel)</label>
+        <input id="deadline" type="date" formControlName="deadline">
+      </div>
+
+      <div class="field">
+        <label>
+          <input type="checkbox" formControlName="published">
+          Publier l'offre (visible aux candidats)
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn--block" [disabled]="submitting()">
+        {{ submitting() ? 'Enregistrement...' : (editId() ? 'Enregistrer' : 'Creer l\'offre') }}
+      </button>
+    </form>
+
+    <p class="auth__footer">
+      <a routerLink="/recrutement">Retour</a>
+    </p>
+  </div>
+</section>

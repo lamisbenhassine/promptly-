@@ -82,6 +82,25 @@ Sans cles : fallback lexique local FR/EN uniquement.
 
 ---
 
+## 3bis. Google Gemini — matching CV / offre (recrutement)
+
+| | |
+|--|--|
+| **Usage** | Score competences + experience CV vs offre |
+| **Endpoint** | `POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent` |
+| **Compte** | https://aistudio.google.com/apikey (gratuit) |
+| **Java** | `CvMatchService` |
+
+```properties
+# application-local.properties
+promptly.cv-match.enabled=true
+promptly.cv-match.api-key=VOTRE_CLE_GEMINI
+```
+
+Sans cle : matching lexical (mots-cles) en secours. HF n'est **pas** utilise pour le recrutement.
+
+---
+
 ## 3. Hugging Face Inference — emotion (reclamations)
 
 | | |
@@ -225,7 +244,8 @@ $env:PROMPTLY_ADMIN_PASSWORD = 'Admin2026!'
 |---------|----------------|--------------|----------|
 | **TextGears** | Oui (`api-key`) | `application-local.properties` | `https://api.textgears.com/grammar` |
 | **Sightengine** | Oui (`api-user` + `api-secret`) | `application-local.properties` | `https://api.sightengine.com/1.0/text/check.json` |
-| **Hugging Face** | Oui (`hf-token`) | `application-local.properties` | `https://api-inference.huggingface.co/models/...` |
+| **Hugging Face** | Oui (`hf-token`) | `application-local.properties` | emotion reclamations |
+| **Google Gemini** | Oui (`api-key`) | `application-local.properties` | matching CV / offre (recrutement) |
 | **Google OAuth** | Client ID | env + `environment.development.ts` | verification ID token |
 | **Ollama** | Non | — | `/api/chat` + `/api/generate` (local) |
 | **ml-integrity** | Non | — | `http://localhost:8090/predict` |

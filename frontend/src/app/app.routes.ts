@@ -94,6 +94,30 @@ export const routes: Routes = [
     title: 'Promptly - Assistant IA'
   },
   {
+    path: 'recrutement',
+    loadComponent: () => import('./features/recruitment/offer-list/offer-list').then((m) => m.OfferList),
+    canActivate: [authGuard],
+    title: 'Promptly - Recrutement'
+  },
+  {
+    path: 'recrutement/nouveau',
+    loadComponent: () => import('./features/recruitment/offer-form/offer-form').then((m) => m.OfferForm),
+    canActivate: [authGuard, roleGuard(['ADMIN'])],
+    title: 'Promptly - Nouvelle offre'
+  },
+  {
+    path: 'recrutement/:id/modifier',
+    loadComponent: () => import('./features/recruitment/offer-form/offer-form').then((m) => m.OfferForm),
+    canActivate: [authGuard, roleGuard(['ADMIN'])],
+    title: 'Promptly - Modifier l\'offre'
+  },
+  {
+    path: 'recrutement/:id',
+    loadComponent: () => import('./features/recruitment/offer-detail/offer-detail').then((m) => m.OfferDetail),
+    canActivate: [authGuard],
+    title: 'Promptly - Offre'
+  },
+  {
     path: 'reclamations',
     loadComponent: () => import('./features/complaints/complaint-list/complaint-list').then((m) => m.ComplaintList),
     canActivate: [authGuard],

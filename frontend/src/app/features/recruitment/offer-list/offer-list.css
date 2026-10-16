@@ -1,0 +1,71 @@
+.courses {
+  padding: 2.5rem 0 3rem;
+}
+
+.courses__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.courses__header h1 {
+  font-size: 1.6rem;
+}
+
+.courses__subtitle {
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+
+.courses__empty {
+  color: var(--color-text-muted);
+  padding: 1.5rem 0;
+}
+
+.post-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.post-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  padding: 1rem 1.15rem;
+}
+
+.post-card__top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.45rem;
+}
+
+.post-card__title {
+  font-size: 1.1rem;
+  margin: 0 0 0.35rem;
+}
+
+.post-card__title a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.post-card__title a:hover {
+  color: var(--color-primary);
+}
+
+.post-card__meta,
+.post-card__excerpt {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin: 0.2rem 0;
+}
+
+.post-card__excerpt {
+  white-space: pre-wrap;
+}

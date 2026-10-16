@@ -1,0 +1,62 @@
+<section class="courses">
+
+  <header class="courses__header">
+    <div>
+      <h1>Recrutement</h1>
+      <p class="courses__subtitle">
+        @if (isAdmin()) {
+          Publiez des offres et consultez les candidatures (CV).
+        } @else {
+          Consultez les offres et postulez en deposant votre CV (PDF).
+        }
+      </p>
+    </div>
+    @if (isAdmin()) {
+      <a class="btn" routerLink="/recrutement/nouveau">Nouvelle offre</a>
+    }
+  </header>
+
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (loading()) {
+    <p class="courses__empty">Chargement...</p>
+  } @else if (offers().length === 0) {
+    <p class="courses__empty">Aucune offre pour le moment.</p>
+  } @else {
+    <div class="post-list">
+      @for (offer of offers(); track offer.id) {
+        <article class="post-card">
+          <div class="post-card__top">
+            <span class="badge badge--neutral">{{ contractLabels[offer.contractType] }}</span>
+            @if (isAdmin()) {
+              <span class="badge"
+                    [class.badge--ok]="offer.published"
+                    [class.badge--ko]="!offer.published">
+                {{ offer.published ? 'Publiee' : 'Brouillon' }}
+              </span>
+              <span class="badge badge--neutral">{{ offer.applicationCount }} candidature(s)</span>
+            }
+            @if (offer.alreadyApplied) {
+              <span class="badge badge--ok">Deja postule</span>
+            }
+          </div>
+          <h2 class="post-card__title">
+            <a [routerLink]="['/recrutement', offer.id]">{{ offer.title }}</a>
+          </h2>
+          <p class="post-card__meta">
+            @if (offer.location) {
+              {{ offer.location }} ·
+            }
+            @if (offer.deadline) {
+              Limite : {{ offer.deadline | date: 'dd/MM/yyyy' }} ·
+            }
+            {{ offer.createdAt | date: 'dd/MM/yyyy' }}
+          </p>
+          <p class="post-card__excerpt">{{ offer.description | slice:0:160 }}{{ offer.description.length > 160 ? '…' : '' }}</p>
+        </article>
+      }
+    </div>
+  }
+</section>
