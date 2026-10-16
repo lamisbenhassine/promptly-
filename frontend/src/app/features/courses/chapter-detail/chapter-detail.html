@@ -49,8 +49,15 @@
             type="button"
             class="btn"
             (click)="summarizePdf()"
-            [disabled]="summarizing()">
+            [disabled]="summarizing() || loadingFlashcards()">
             {{ summarizing() ? 'Resume en cours...' : 'Resumer automatiquement' }}
+          </button>
+          <button
+            type="button"
+            class="btn btn--ghost"
+            (click)="generateFlashcards()"
+            [disabled]="loadingFlashcards() || summarizing()">
+            {{ loadingFlashcards() ? 'Flashcards...' : 'Generer 4 flashcards' }}
           </button>
         </div>
 
@@ -68,6 +75,40 @@
               </p>
             }
             <pre class="ai-summary__text">{{ s.summary }}</pre>
+          </div>
+        }
+
+        @if (flashcardsError()) {
+          <p class="alert" role="alert">{{ flashcardsError() }}</p>
+        }
+
+        @if (flashcards().length > 0) {
+          <div class="flashcards" aria-label="Flashcards du chapitre">
+            <h3 class="flashcards__heading">Flashcards — cliquez pour retourner</h3>
+            <div class="flashcards__grid">
+              @for (card of flashcards(); track $index) {
+                <button
+                  type="button"
+                  class="flashcard"
+                  [class.flashcard--flipped]="flipped()[$index]"
+                  (click)="toggleCard($index)"
+                  [attr.aria-pressed]="flipped()[$index]">
+                  @if (!flipped()[$index]) {
+                    <div class="flashcard__side flashcard__side--front">
+                      <p class="flashcard__label">Astuce {{ $index + 1 }}</p>
+                      <p class="flashcard__title">{{ card.front }}</p>
+                      <p class="flashcard__hint">Cliquer pour voir le tip</p>
+                    </div>
+                  } @else {
+                    <div class="flashcard__side flashcard__side--back">
+                      <p class="flashcard__label">Tip</p>
+                      <p class="flashcard__body">{{ card.back }}</p>
+                      <p class="flashcard__hint">Cliquer pour revenir</p>
+                    </div>
+                  }
+                </button>
+              }
+            </div>
           </div>
         }
       </article>

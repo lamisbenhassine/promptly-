@@ -16,6 +16,8 @@ export interface Quiz {
   title: string;
   description: string;
   published: boolean;
+  durationMinutes: number | null;
+  secondsPerQuestion: number | null;
   courseId: number;
   courseTitle: string;
   chapterId: number | null;
@@ -43,7 +45,28 @@ export interface QuizPayload {
   courseId: number;
   chapterId?: number | null;
   published: boolean;
+  durationMinutes?: number | null;
+  secondsPerQuestion?: number | null;
   questions: QuizQuestionPayload[];
+}
+
+export interface ChoiceReview {
+  id: number;
+  text: string;
+  correct: boolean;
+  selected: boolean;
+}
+
+export interface QuestionReview {
+  questionId: number;
+  text: string;
+  position: number;
+  answeredCorrectly: boolean;
+  choices: ChoiceReview[];
+  /** GUESS | KNOW — enseignant seulement */
+  integrityLabel?: string | null;
+  integrityConfidence?: number | null;
+  timeSpentMs?: number | null;
 }
 
 export interface QuizAttempt {
@@ -58,9 +81,37 @@ export interface QuizAttempt {
   correctCount: number;
   totalQuestions: number;
   selectedChoiceIds: number[];
+  review: QuestionReview[];
   submittedAt: string;
+}
+
+export interface QuestionTimingPayload {
+  questionId: number;
+  timeSpentMs: number;
+  selectionChanges: number;
+  choiceIndex: number;
 }
 
 export interface AttemptPayload {
   selectedChoiceIds: number[];
+  questionTimings: QuestionTimingPayload[];
+  timedOut: boolean;
+}
+
+export interface UpdateAttemptPayload {
+  scorePercent: number;
+  correctCount: number;
+}
+
+export interface GenerateQuizPayload {
+  title: string;
+  description: string;
+  courseId: number;
+  chapterId?: number | null;
+}
+
+export interface GeneratedQuiz {
+  questions: QuizQuestionPayload[];
+  model: string;
+  courseTitle: string;
 }

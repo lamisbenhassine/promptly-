@@ -3,7 +3,13 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { extractErrorMessage } from '../../../core/models/api-error.model';
-import { CATEGORY_LABELS, Chapter, Course, PdfSummary } from '../../../core/models/course.model';
+import {
+  CATEGORY_LABELS,
+  Chapter,
+  Course,
+  Flashcard,
+  PdfSummary
+} from '../../../core/models/course.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { CourseService } from '../../../core/services/course.service';
 
@@ -30,6 +36,11 @@ export class CourseDetail implements OnInit {
   protected readonly summarizing = signal(false);
   protected readonly summary = signal<PdfSummary | null>(null);
   protected readonly summaryError = signal<string | null>(null);
+
+  protected readonly loadingFlashcards = signal(false);
+  protected readonly flashcards = signal<Flashcard[]>([]);
+  protected readonly flipped = signal<boolean[]>([false, false, false, false]);
+  protected readonly flashcardsError = signal<string | null>(null);
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -70,6 +81,32 @@ export class CourseDetail implements OnInit {
         this.summaryError.set(extractErrorMessage(error, 'Le resume automatique a echoue'));
         this.summarizing.set(false);
       }
+    });
+  }
+
+  protected generateFlashcards(course: Course): void {
+    this.flashcardsError.set(null);
+    this.loadingFlashcards.set(true);
+    this.flipped.set([false, false, false, false]);
+
+    this.courseService.flashcardsForCourse(course.id).subscribe({
+      next: (result) => {
+        this.flashcards.set(result.cards.slice(0, 4));
+        this.loadingFlashcards.set(false);
+      },
+      error: (error) => {
+        this.flashcards.set([]);
+        this.flashcardsError.set(extractErrorMessage(error, 'Generation des flashcards echouee'));
+        this.loadingFlashcards.set(false);
+      }
+    });
+  }
+
+  protected toggleCard(index: number): void {
+    this.flipped.update((states) => {
+      const next = [...states];
+      next[index] = !next[index];
+      return next;
     });
   }
 

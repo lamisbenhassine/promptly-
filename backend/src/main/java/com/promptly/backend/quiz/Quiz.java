@@ -42,6 +42,14 @@ public class Quiz {
     @Column(nullable = false)
     private boolean published = false;
 
+    /** Duree totale du quiz en minutes (null = pas de limite). */
+    @Column
+    private Integer durationMinutes;
+
+    /** Temps max par question en secondes (null = pas de limite par question). */
+    @Column
+    private Integer secondsPerQuestion;
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
@@ -116,6 +124,22 @@ public class Quiz {
 
     public void setPublished(boolean published) {
         this.published = published;
+    }
+
+    public Integer getDurationMinutes() {
+        return durationMinutes;
+    }
+
+    public void setDurationMinutes(Integer durationMinutes) {
+        this.durationMinutes = durationMinutes;
+    }
+
+    public Integer getSecondsPerQuestion() {
+        return secondsPerQuestion;
+    }
+
+    public void setSecondsPerQuestion(Integer secondsPerQuestion) {
+        this.secondsPerQuestion = secondsPerQuestion;
     }
 
     public Course getCourse() {

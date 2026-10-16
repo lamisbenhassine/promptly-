@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -6,8 +6,11 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { extractErrorMessage } from '../../../core/models/api-error.model';
 import {
   COMPLAINT_CATEGORY_LABELS,
+  COMPLAINT_EMOTION_LABELS,
+  COMPLAINT_PRIORITY_LABELS,
   COMPLAINT_STATUSES,
   COMPLAINT_STATUS_LABELS,
+  COMPLAINT_URGENCY_LABELS,
   Complaint,
   ComplaintStatus
 } from '../../../core/models/complaint.model';
@@ -16,7 +19,7 @@ import { ComplaintService } from '../../../core/services/complaint.service';
 
 @Component({
   selector: 'app-complaint-detail',
-  imports: [DatePipe, ReactiveFormsModule, RouterLink],
+  imports: [DatePipe, DecimalPipe, ReactiveFormsModule, RouterLink],
   templateUrl: './complaint-detail.html',
   styleUrl: './complaint-detail.css'
 })
@@ -30,6 +33,9 @@ export class ComplaintDetail implements OnInit {
 
   protected readonly categoryLabels = COMPLAINT_CATEGORY_LABELS;
   protected readonly statusLabels = COMPLAINT_STATUS_LABELS;
+  protected readonly urgencyLabels = COMPLAINT_URGENCY_LABELS;
+  protected readonly priorityLabels = COMPLAINT_PRIORITY_LABELS;
+  protected readonly emotionLabels = COMPLAINT_EMOTION_LABELS;
   protected readonly statuses = COMPLAINT_STATUSES;
   protected readonly isAdmin = this.authService.isAdmin;
 

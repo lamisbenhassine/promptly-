@@ -20,6 +20,7 @@ import com.promptly.backend.quiz.dto.AttemptRequest;
 import com.promptly.backend.quiz.dto.AttemptResponse;
 import com.promptly.backend.quiz.dto.QuizRequest;
 import com.promptly.backend.quiz.dto.QuizResponse;
+import com.promptly.backend.quiz.dto.UpdateAttemptRequest;
 
 import jakarta.validation.Valid;
 
@@ -85,5 +86,15 @@ public class QuizController {
     @PreAuthorize("hasAnyRole('ENSEIGNANT', 'ADMIN')")
     public List<AttemptResponse> allAttempts(Principal principal, @PathVariable Long id) {
         return quizService.allAttempts(id, principal.getName());
+    }
+
+    /** Corrige manuellement la note d'une tentative. */
+    @PutMapping("/{id}/attempts/{attemptId}")
+    @PreAuthorize("hasAnyRole('ENSEIGNANT', 'ADMIN')")
+    public AttemptResponse updateAttempt(Principal principal,
+                                         @PathVariable Long id,
+                                         @PathVariable Long attemptId,
+                                         @Valid @RequestBody UpdateAttemptRequest request) {
+        return quizService.updateAttempt(id, attemptId, principal.getName(), request);
     }
 }

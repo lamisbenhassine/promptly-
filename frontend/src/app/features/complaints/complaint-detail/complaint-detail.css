@@ -22,7 +22,18 @@
 
 .detail__tags {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.4rem;
+}
+
+.ml-panel__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  color: var(--color-text-muted);
 }
 
 .detail__meta {

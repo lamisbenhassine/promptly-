@@ -1,8 +1,10 @@
 package com.promptly.backend.quiz;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.security.access.AccessDeniedException;
@@ -21,9 +23,16 @@ import com.promptly.backend.course.CourseService;
 import com.promptly.backend.quiz.dto.AttemptRequest;
 import com.promptly.backend.quiz.dto.AttemptResponse;
 import com.promptly.backend.quiz.dto.ChoiceRequest;
+import com.promptly.backend.quiz.dto.ChoiceReview;
 import com.promptly.backend.quiz.dto.QuestionRequest;
+import com.promptly.backend.quiz.dto.QuestionReview;
+import com.promptly.backend.quiz.dto.QuestionTimingRequest;
 import com.promptly.backend.quiz.dto.QuizRequest;
 import com.promptly.backend.quiz.dto.QuizResponse;
+import com.promptly.backend.quiz.dto.UpdateAttemptRequest;
+import com.promptly.backend.quiz.integrity.IntegrityFeature;
+import com.promptly.backend.quiz.integrity.IntegrityMlClient;
+import com.promptly.backend.quiz.integrity.IntegrityPrediction;
 import com.promptly.backend.user.Role;
 import com.promptly.backend.user.User;
 import com.promptly.backend.user.UserService;
@@ -38,19 +47,22 @@ public class QuizService {
     private final CourseService courseService;
     private final UserService userService;
     private final ObjectMapper objectMapper;
+    private final IntegrityMlClient integrityMlClient;
 
     public QuizService(QuizRepository quizRepository,
                        QuizAttemptRepository attemptRepository,
                        ChapterRepository chapterRepository,
                        CourseService courseService,
                        UserService userService,
-                       ObjectMapper objectMapper) {
+                       ObjectMapper objectMapper,
+                       IntegrityMlClient integrityMlClient) {
         this.quizRepository = quizRepository;
         this.attemptRepository = attemptRepository;
         this.chapterRepository = chapterRepository;
         this.courseService = courseService;
         this.userService = userService;
         this.objectMapper = objectMapper;
+        this.integrityMlClient = integrityMlClient;
     }
 
     public List<QuizResponse> list(String viewerEmail, Long courseId) {
@@ -79,6 +91,8 @@ public class QuizService {
                 request.published(),
                 course,
                 chapter);
+        quiz.setDurationMinutes(request.durationMinutes());
+        quiz.setSecondsPerQuestion(request.secondsPerQuestion());
 
         quiz.replaceQuestions(buildQuestions(request.questions(), request.published()));
         return QuizResponse.detail(quizRepository.save(quiz), true);
@@ -96,6 +110,8 @@ public class QuizService {
         quiz.setTitle(request.title().trim());
         quiz.setDescription(request.description().trim());
         quiz.setPublished(request.published());
+        quiz.setDurationMinutes(request.durationMinutes());
+        quiz.setSecondsPerQuestion(request.secondsPerQuestion());
         quiz.setCourse(course);
         quiz.setChapter(chapter);
         quiz.replaceQuestions(buildQuestions(request.questions(), request.published()));
@@ -153,26 +169,33 @@ public class QuizService {
         int total = quiz.getQuestions().size();
         int scorePercent = total == 0 ? 0 : (int) Math.round((correctCount * 100.0) / total);
 
-        String json;
-        try {
-            json = objectMapper.writeValueAsString(request.selectedChoiceIds());
-        } catch (JsonProcessingException ex) {
-            throw new IllegalStateException("Impossible de serialiser les reponses", ex);
-        }
+        List<QuestionTimingRequest> timings = request.questionTimings() == null
+                ? List.of()
+                : request.questionTimings();
+
+        Map<Long, Boolean> correctnessByQuestion = buildCorrectnessMap(quiz, selected);
+        List<IntegrityPrediction> predictions = runIntegrityModel(quiz, timings, correctnessByQuestion);
+
+        String answersJson = writeJson(request.selectedChoiceIds());
+        String timingsJson = writeJson(timings);
+        String integrityJson = writeJson(predictions);
 
         QuizAttempt attempt = attemptRepository.save(new QuizAttempt(
-                quiz, student, scorePercent, correctCount, total, json));
+                quiz, student, scorePercent, correctCount, total,
+                answersJson, timingsJson, integrityJson));
 
-        return AttemptResponse.from(attempt, request.selectedChoiceIds());
+        // L'etudiant voit la correction, pas les labels GUESS/KNOW.
+        return toAttemptResponse(attempt, quiz, request.selectedChoiceIds(), false);
     }
 
     public List<AttemptResponse> myAttempts(Long quizId, String viewerEmail) {
         User viewer = userService.findByEmail(viewerEmail);
-        requireVisible(quizId, viewer);
+        Quiz quiz = requireVisible(quizId, viewer);
+        boolean revealIntegrity = canManage(quiz, viewer);
         return attemptRepository
                 .findByQuizIdAndStudentIdOrderBySubmittedAtDesc(quizId, viewer.getId())
                 .stream()
-                .map(this::toAttemptResponse)
+                .map(attempt -> toAttemptResponse(attempt, quiz, revealIntegrity))
                 .toList();
     }
 
@@ -181,20 +204,223 @@ public class QuizService {
         Quiz quiz = findWithDetails(quizId);
         ensureCanManage(quiz, editor);
         return attemptRepository.findByQuizIdOrderBySubmittedAtDesc(quizId).stream()
-                .map(this::toAttemptResponse)
+                .map(attempt -> toAttemptResponse(attempt, quiz, true))
                 .toList();
     }
 
-    private AttemptResponse toAttemptResponse(QuizAttempt attempt) {
-        List<Long> selected;
+    /**
+     * L'enseignant / admin peut corriger manuellement la note d'une tentative.
+     */
+    @Transactional
+    public AttemptResponse updateAttempt(Long quizId, Long attemptId, String editorEmail,
+                                         UpdateAttemptRequest request) {
+        User editor = userService.findByEmail(editorEmail);
+        Quiz quiz = findWithDetails(quizId);
+        ensureCanManage(quiz, editor);
+
+        QuizAttempt attempt = attemptRepository.findById(attemptId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tentative", attemptId));
+        if (!attempt.getQuiz().getId().equals(quizId)) {
+            throw new ResourceNotFoundException("Tentative", attemptId);
+        }
+
+        if (request.correctCount() > attempt.getTotalQuestions()) {
+            throw new BusinessRuleException(
+                    "Le nombre de bonnes reponses ne peut pas depasser le total de questions.");
+        }
+
+        attempt.setScorePercent(request.scorePercent());
+        attempt.setCorrectCount(request.correctCount());
+        QuizAttempt saved = attemptRepository.save(attempt);
+        return toAttemptResponse(saved, quiz, true);
+    }
+
+    private AttemptResponse toAttemptResponse(QuizAttempt attempt, Quiz quiz,
+                                              boolean revealIntegrity) {
+        return toAttemptResponse(attempt, quiz, readSelectedIds(attempt), revealIntegrity);
+    }
+
+    private AttemptResponse toAttemptResponse(QuizAttempt attempt, Quiz quiz,
+                                              List<Long> selected,
+                                              boolean revealIntegrity) {
+        Map<Long, IntegrityPrediction> integrityByQuestion = revealIntegrity
+                ? readIntegrityMap(attempt)
+                : Map.of();
+        Map<Long, QuestionTimingRequest> timingsByQuestion = readTimingsMap(attempt);
+        return AttemptResponse.from(
+                attempt,
+                selected,
+                buildReview(quiz, selected, integrityByQuestion, timingsByQuestion, revealIntegrity));
+    }
+
+    private List<Long> readSelectedIds(QuizAttempt attempt) {
         try {
-            selected = objectMapper.readValue(
+            return objectMapper.readValue(
                     attempt.getSelectedChoiceIdsJson(),
                     new TypeReference<List<Long>>() { });
         } catch (JsonProcessingException ex) {
-            selected = List.of();
+            return List.of();
         }
-        return AttemptResponse.from(attempt, selected);
+    }
+
+    private Map<Long, IntegrityPrediction> readIntegrityMap(QuizAttempt attempt) {
+        if (attempt.getIntegrityPredictionsJson() == null
+                || attempt.getIntegrityPredictionsJson().isBlank()) {
+            return Map.of();
+        }
+        try {
+            List<IntegrityPrediction> list = objectMapper.readValue(
+                    attempt.getIntegrityPredictionsJson(),
+                    new TypeReference<List<IntegrityPrediction>>() { });
+            Map<Long, IntegrityPrediction> map = new HashMap<>();
+            for (IntegrityPrediction prediction : list) {
+                map.put(prediction.questionId(), prediction);
+            }
+            return map;
+        } catch (JsonProcessingException ex) {
+            return Map.of();
+        }
+    }
+
+    private Map<Long, QuestionTimingRequest> readTimingsMap(QuizAttempt attempt) {
+        if (attempt.getQuestionTimingsJson() == null || attempt.getQuestionTimingsJson().isBlank()) {
+            return Map.of();
+        }
+        try {
+            List<QuestionTimingRequest> list = objectMapper.readValue(
+                    attempt.getQuestionTimingsJson(),
+                    new TypeReference<List<QuestionTimingRequest>>() { });
+            Map<Long, QuestionTimingRequest> map = new HashMap<>();
+            for (QuestionTimingRequest timing : list) {
+                map.put(timing.questionId(), timing);
+            }
+            return map;
+        } catch (JsonProcessingException ex) {
+            return Map.of();
+        }
+    }
+
+    private Map<Long, Boolean> buildCorrectnessMap(Quiz quiz, Set<Long> selected) {
+        Map<Long, Boolean> map = new HashMap<>();
+        for (Question question : quiz.getQuestions()) {
+            Set<Long> correctIds = new HashSet<>();
+            Set<Long> questionChoiceIds = new HashSet<>();
+            for (Choice choice : question.getChoices()) {
+                questionChoiceIds.add(choice.getId());
+                if (choice.isCorrect()) {
+                    correctIds.add(choice.getId());
+                }
+            }
+            Set<Long> selectedForQuestion = new HashSet<>();
+            for (Long choiceId : selected) {
+                if (questionChoiceIds.contains(choiceId)) {
+                    selectedForQuestion.add(choiceId);
+                }
+            }
+            map.put(question.getId(),
+                    selectedForQuestion.equals(correctIds) && !correctIds.isEmpty());
+        }
+        return map;
+    }
+
+    private List<IntegrityPrediction> runIntegrityModel(
+            Quiz quiz,
+            List<QuestionTimingRequest> timings,
+            Map<Long, Boolean> correctnessByQuestion) {
+
+        Map<Long, QuestionTimingRequest> byQuestion = new HashMap<>();
+        for (QuestionTimingRequest timing : timings) {
+            byQuestion.put(timing.questionId(), timing);
+        }
+
+        double avg = timings.stream()
+                .mapToLong(QuestionTimingRequest::timeSpentMs)
+                .average()
+                .orElse(0);
+
+        List<IntegrityFeature> features = new ArrayList<>();
+        for (Question question : quiz.getQuestions()) {
+            QuestionTimingRequest timing = byQuestion.get(question.getId());
+            long timeMs = timing == null ? 0 : timing.timeSpentMs();
+            int changes = timing == null ? 0 : timing.selectionChanges();
+            int choiceIndex = timing == null ? 0 : timing.choiceIndex();
+            boolean correct = correctnessByQuestion.getOrDefault(question.getId(), false);
+            features.add(new IntegrityFeature(
+                    question.getId(), timeMs, changes, choiceIndex, correct, avg));
+        }
+        return integrityMlClient.predict(features);
+    }
+
+    private List<QuestionReview> buildReview(
+            Quiz quiz,
+            List<Long> selectedIds,
+            Map<Long, IntegrityPrediction> integrityByQuestion,
+            Map<Long, QuestionTimingRequest> timingsByQuestion,
+            boolean revealIntegrity) {
+
+        Set<Long> selected = new HashSet<>(selectedIds);
+        List<QuestionReview> reviews = new ArrayList<>();
+
+        for (Question question : quiz.getQuestions()) {
+            Set<Long> correctIds = new HashSet<>();
+            Set<Long> questionChoiceIds = new HashSet<>();
+            List<ChoiceReview> choiceReviews = new ArrayList<>();
+
+            for (Choice choice : question.getChoices()) {
+                questionChoiceIds.add(choice.getId());
+                if (choice.isCorrect()) {
+                    correctIds.add(choice.getId());
+                }
+                choiceReviews.add(new ChoiceReview(
+                        choice.getId(),
+                        choice.getText(),
+                        choice.isCorrect(),
+                        selected.contains(choice.getId())));
+            }
+
+            Set<Long> selectedForQuestion = new HashSet<>();
+            for (Long choiceId : selected) {
+                if (questionChoiceIds.contains(choiceId)) {
+                    selectedForQuestion.add(choiceId);
+                }
+            }
+
+            boolean ok = selectedForQuestion.equals(correctIds) && !correctIds.isEmpty();
+            IntegrityPrediction prediction = integrityByQuestion.get(question.getId());
+            QuestionTimingRequest timing = timingsByQuestion.get(question.getId());
+
+            String integrityLabel = null;
+            Double integrityConfidence = null;
+            if (revealIntegrity && prediction != null) {
+                // Affichage : jamais KNOW si la reponse est fausse.
+                if (!ok) {
+                    integrityLabel = "GUESS";
+                    integrityConfidence = Math.max(prediction.confidence(), 0.75);
+                } else {
+                    integrityLabel = prediction.label();
+                    integrityConfidence = prediction.confidence();
+                }
+            }
+
+            reviews.add(new QuestionReview(
+                    question.getId(),
+                    question.getText(),
+                    question.getPosition(),
+                    ok,
+                    choiceReviews,
+                    integrityLabel,
+                    integrityConfidence,
+                    timing == null ? null : timing.timeSpentMs()));
+        }
+        return reviews;
+    }
+
+    private String writeJson(Object value) {
+        try {
+            return objectMapper.writeValueAsString(value);
+        } catch (JsonProcessingException ex) {
+            throw new IllegalStateException("Impossible de serialiser les donnees de tentative", ex);
+        }
     }
 
     private List<Question> buildQuestions(List<QuestionRequest> requests, boolean published) {

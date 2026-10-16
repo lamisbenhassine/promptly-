@@ -12,6 +12,15 @@ backend/.mvn/wrapper/maven-wrapper.jar
 # Configuration locale eventuelle contenant des identifiants
 backend/src/main/resources/application-local.properties
 
+# ======================= ML integrity service =====================
+ml-integrity/.venv/
+ml-integrity/__pycache__/
+ml-integrity/model.joblib
+
+ml-complaints/.venv/
+ml-complaints/__pycache__/
+ml-complaints/model.joblib
+
 # ======================= Frontend (Angular) =======================
 frontend/node_modules/
 frontend/dist/

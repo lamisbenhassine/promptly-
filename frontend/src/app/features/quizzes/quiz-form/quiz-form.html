@@ -12,6 +12,10 @@
       <p class="alert" role="alert">{{ errorMessage() }}</p>
     }
 
+    @if (infoMessage()) {
+      <p class="alert alert--success" role="status">{{ infoMessage() }}</p>
+    }
+
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
 
       <div class="field">
@@ -48,6 +52,37 @@
         </div>
       </div>
 
+      <div class="grid-2">
+        <div class="field">
+          <label for="durationMinutes">Duree totale (minutes)</label>
+          <input id="durationMinutes" type="number" min="1" max="180"
+                 formControlName="durationMinutes"
+                 placeholder="ex. 15">
+          <small class="field__hint">A la fin du chrono, le quiz se ferme automatiquement.</small>
+        </div>
+        <div class="field">
+          <label for="secondsPerQuestion">Temps par question (secondes)</label>
+          <input id="secondsPerQuestion" type="number" min="10" max="600"
+                 formControlName="secondsPerQuestion"
+                 placeholder="ex. 60">
+          <small class="field__hint">Compteur pour chaque question (une question a la fois).</small>
+        </div>
+      </div>
+
+      <div class="ai-generate">
+        <button
+          type="button"
+          class="btn"
+          (click)="generateWithAi()"
+          [disabled]="generating() || submitting()">
+          {{ generating() ? 'Generation Ollama en cours...' : 'Generer 10 questions avec IA' }}
+        </button>
+        <p class="ai-generate__hint">
+          Utilise le titre, la description, le cours selectionne (et le chapitre / PDF s'ils existent).
+          Ollama doit tourner en local. Cela peut prendre 30 a 90 secondes.
+        </p>
+      </div>
+
       <div class="field">
         <label>
           <input type="checkbox" formControlName="published">
@@ -58,7 +93,7 @@
       <div formArrayName="questions" class="questions">
         <div class="questions__header">
           <h2>Questions</h2>
-          <button type="button" class="btn btn--ghost" (click)="addQuestion()">
+          <button type="button" class="btn btn--ghost" (click)="addQuestion()" [disabled]="generating()">
             Ajouter une question
           </button>
         </div>

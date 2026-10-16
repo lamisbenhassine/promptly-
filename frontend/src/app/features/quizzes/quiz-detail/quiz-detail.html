@@ -2,8 +2,12 @@
 
   @if (errorMessage()) {
     <p class="alert" role="alert">{{ errorMessage() }}</p>
-    <a routerLink="/quiz">Retour aux quiz</a>
-  } @else if (quiz(); as q) {
+    @if (!quiz()) {
+      <a routerLink="/quiz">Retour aux quiz</a>
+    }
+  }
+
+  @if (quiz(); as q) {
 
     <p class="detail__back"><a routerLink="/quiz">&larr; Catalogue des quiz</a></p>
 
@@ -13,6 +17,12 @@
           <span class="badge badge--neutral">{{ q.courseTitle }}</span>
           @if (!q.published) {
             <span class="badge badge--ko">Brouillon</span>
+          }
+          @if (q.durationMinutes) {
+            <span class="badge badge--neutral">{{ q.durationMinutes }} min</span>
+          }
+          @if (q.secondsPerQuestion) {
+            <span class="badge badge--neutral">{{ q.secondsPerQuestion }} s / question</span>
           }
         </div>
         <h1>{{ q.title }}</h1>
@@ -39,53 +49,185 @@
       <p class="detail__text">{{ q.description }}</p>
     </article>
 
-    @if (lastResult(); as result) {
-      <article class="panel result">
-        <h2 class="panel__title">Resultat</h2>
+    @if (reviewedAttempt(); as result) {
+      <article id="quiz-review-panel" class="panel result result--focus">
+        <div class="result__header">
+          <h2 class="panel__title">
+            @if (canManage()) {
+              Detail + analyse ML
+            } @else {
+              Resultat
+            }
+          </h2>
+          <button type="button" class="btn btn--ghost btn--small" (click)="closeReview()">
+            Fermer
+          </button>
+        </div>
         <p class="result__score">{{ result.scorePercent }} %</p>
         <p class="detail__text">
           {{ result.correctCount }} / {{ result.totalQuestions }} bonnes reponses
+          &middot; {{ result.submittedAt | date:'dd/MM/yyyy HH:mm' }}
+          @if (canManage()) {
+            &middot; {{ result.studentFirstName }} {{ result.studentLastName }}
+            ({{ result.studentEmail }})
+          }
         </p>
+
+        @if (canManage() && !hasIntegrityLabels(result)) {
+          <p class="alert alert--info" role="status">
+            Pas de labels GUESS/KNOW pour cette tentative
+            (soumise avant l'activation du modele, ou sans timings).
+            Demandez a l'etudiant de repasser le quiz pour generer l'analyse ML.
+          </p>
+        }
+
+        @if (result.review?.length) {
+          <div class="review">
+            <h3 class="review__title">Correction detaillee</h3>
+            @for (question of result.review; track question.questionId) {
+              <div class="review__question"
+                   [class.review__question--ok]="question.answeredCorrectly"
+                   [class.review__question--ko]="!question.answeredCorrectly">
+                <p class="review__status">
+                  {{ question.answeredCorrectly ? 'Bonne reponse' : 'Mauvaise reponse' }}
+                </p>
+                <h4>{{ question.position }}. {{ question.text }}</h4>
+
+                @if (canManage() && question.integrityLabel) {
+                  <p class="integrity"
+                     [class.integrity--guess]="question.integrityLabel === 'GUESS'"
+                     [class.integrity--know]="question.integrityLabel === 'KNOW'">
+                    Analyse ML :
+                    {{ question.integrityLabel === 'GUESS' ? 'Reponse au hasard (GUESS)' : 'Semble connaitre (KNOW)' }}
+                    @if (question.integrityConfidence != null) {
+                      — {{ (question.integrityConfidence * 100) | number:'1.0-0' }}%
+                    }
+                    @if (question.timeSpentMs != null) {
+                      — {{ question.timeSpentMs }} ms
+                    }
+                  </p>
+                }
+
+                <ul class="review__choices">
+                  @for (choice of question.choices; track choice.id) {
+                    <li [class.review__choice--correct]="choice.correct"
+                        [class.review__choice--selected]="choice.selected"
+                        [class.review__choice--wrong]="choice.selected && !choice.correct">
+                      {{ choice.text }}
+                      @if (choice.correct) {
+                        <span class="review__tag review__tag--ok">Bonne</span>
+                      }
+                      @if (choice.selected) {
+                        <span class="review__tag">Votre choix</span>
+                      }
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="detail__text">Aucune correction detaillee disponible pour cette tentative.</p>
+        }
       </article>
     }
 
-    @if (q.questions; as questions) {
-      <article class="panel">
-        <h2 class="panel__title">
-          {{ canManage() ? 'Questions (avec bonnes reponses)' : 'Passer le quiz' }}
-        </h2>
+    <!-- Passage etudiant : une question a la fois -->
+    @if (!canManage() && q.published && !quizSubmitted() && q.questions; as questions) {
+      <article class="panel take-quiz">
+        @if (!quizStarted()) {
+          <h2 class="panel__title">Passer le quiz</h2>
+          <p class="detail__text">
+            Les questions s'affichent une par une.
+            @if (q.durationMinutes) {
+              Duree totale : {{ q.durationMinutes }} min.
+            }
+            @if (q.secondsPerQuestion) {
+              Temps par question : {{ q.secondsPerQuestion }} s.
+            }
+          </p>
+          <button type="button" class="btn" (click)="startQuiz()">Commencer</button>
+        } @else if (currentQuestion(); as question) {
+          <div class="timers">
+            <div class="timer">
+              <span class="timer__label">Temps total</span>
+              <strong [class.timer--low]="(globalRemainingSec() ?? 999) <= 30">
+                {{ formatTime(globalRemainingSec()) }}
+              </strong>
+            </div>
+            <div class="timer">
+              <span class="timer__label">Question</span>
+              <strong [class.timer--low]="(questionRemainingSec() ?? 999) <= 10">
+                {{ formatTime(questionRemainingSec()) }}
+              </strong>
+            </div>
+            <div class="timer">
+              <span class="timer__label">Progression</span>
+              <strong>{{ currentIndex() + 1 }} / {{ totalQuestions() }}</strong>
+            </div>
+          </div>
 
+          <div class="progress">
+            <div class="progress__bar"
+                 [style.width.%]="((currentIndex() + 1) / totalQuestions()) * 100"></div>
+          </div>
+
+          <div class="question-block">
+            <h3>{{ question.position }}. {{ question.text }}</h3>
+            <ul class="choice-list">
+              @for (choice of question.choices; track choice.id; let ci = $index) {
+                <li>
+                  <label class="choice-option"
+                         [class.choice-option--selected]="isSelected(question.id, choice.id)">
+                    <input type="radio"
+                           [name]="'q-' + question.id"
+                           [checked]="isSelected(question.id, choice.id)"
+                           (change)="selectChoice(question.id, choice.id, ci)">
+                    {{ choice.text }}
+                  </label>
+                </li>
+              }
+            </ul>
+          </div>
+
+          <div class="take-quiz__nav">
+            <button type="button" class="btn btn--ghost"
+                    (click)="prevQuestion()"
+                    [disabled]="currentIndex() === 0 || submitting()">
+              Precedent
+            </button>
+            @if (currentIndex() < totalQuestions() - 1) {
+              <button type="button" class="btn" (click)="nextQuestion()" [disabled]="submitting()">
+                Suivant
+              </button>
+            } @else {
+              <button type="button" class="btn" (click)="submit(false)" [disabled]="submitting()">
+                {{ submitting() ? 'Envoi...' : 'Terminer le quiz' }}
+              </button>
+            }
+          </div>
+        }
+      </article>
+    }
+
+    <!-- Vue enseignant : toutes les questions -->
+    @if (canManage() && q.questions; as questions) {
+      <article class="panel">
+        <h2 class="panel__title">Questions (avec bonnes reponses)</h2>
         @for (question of questions; track question.id) {
           <div class="question-block">
             <h3>{{ question.position }}. {{ question.text }}</h3>
             <ul class="choice-list">
               @for (choice of question.choices; track choice.id) {
                 <li>
-                  @if (canManage()) {
-                    <span [class.choice--correct]="choice.correct">
-                      {{ choice.text }}
-                      @if (choice.correct) { (bonne reponse) }
-                    </span>
-                  } @else {
-                    <label class="choice-option"
-                           [class.choice-option--selected]="isSelected(question.id, choice.id)">
-                      <input type="radio"
-                             [name]="'q-' + question.id"
-                             [checked]="isSelected(question.id, choice.id)"
-                             (change)="selectChoice(question.id, choice.id)">
-                      {{ choice.text }}
-                    </label>
-                  }
+                  <span [class.choice--correct]="choice.correct">
+                    {{ choice.text }}
+                    @if (choice.correct) { (bonne reponse) }
+                  </span>
                 </li>
               }
             </ul>
           </div>
-        }
-
-        @if (!canManage() && q.published) {
-          <button type="button" class="btn" (click)="submit()" [disabled]="submitting()">
-            {{ submitting() ? 'Envoi...' : 'Soumettre mes reponses' }}
-          </button>
         }
       </article>
     }
@@ -95,28 +237,82 @@
         <h2 class="panel__title">Mes tentatives</h2>
         <ul class="attempt-list">
           @for (attempt of myAttempts(); track attempt.id) {
-            <li>
-              {{ attempt.scorePercent }} %
-              ({{ attempt.correctCount }}/{{ attempt.totalQuestions }})
-              &mdash; {{ attempt.submittedAt | date:'dd/MM/yyyy HH:mm' }}
+            <li class="attempt-row">
+              <span>
+                {{ attempt.scorePercent }} %
+                ({{ attempt.correctCount }}/{{ attempt.totalQuestions }})
+                &mdash; {{ attempt.submittedAt | date:'dd/MM/yyyy HH:mm' }}
+              </span>
+              <button type="button" class="btn btn--ghost btn--small" (click)="openReview(attempt)">
+                Voir la correction
+              </button>
             </li>
           }
         </ul>
       </article>
     }
 
-    @if (canManage() && allAttempts().length > 0) {
+    @if (canManage()) {
       <article class="panel">
         <h2 class="panel__title">Resultats des etudiants</h2>
-        <ul class="attempt-list">
-          @for (attempt of allAttempts(); track attempt.id) {
-            <li>
-              {{ attempt.studentFirstName }} {{ attempt.studentLastName }}
-              &mdash; {{ attempt.scorePercent }} %
-              &mdash; {{ attempt.submittedAt | date:'dd/MM/yyyy HH:mm' }}
-            </li>
-          }
-        </ul>
+        <p class="detail__text">
+          Les labels GUESS / KNOW viennent du modele ML (hasard vs connaissance).
+        </p>
+        @if (allAttempts().length === 0) {
+          <p class="detail__text">Aucune tentative pour le moment.</p>
+        } @else {
+          <div class="attempts-table">
+            @for (attempt of allAttempts(); track attempt.id) {
+              <div class="attempts-table__row">
+                <div class="attempts-table__info">
+                  <strong>{{ attempt.studentFirstName }} {{ attempt.studentLastName }}</strong>
+                  <span class="attempts-table__meta">{{ attempt.studentEmail }}</span>
+                  <span class="attempts-table__meta">
+                    {{ attempt.submittedAt | date:'dd/MM/yyyy HH:mm' }}
+                  </span>
+                </div>
+
+                @if (editAttemptId() === attempt.id) {
+                  <div class="attempts-table__edit">
+                    <label>
+                      Score %
+                      <input type="number" min="0" max="100"
+                             [ngModel]="editScore()"
+                             (ngModelChange)="editScore.set($event)">
+                    </label>
+                    <label>
+                      Bonnes / {{ attempt.totalQuestions }}
+                      <input type="number" min="0" [max]="attempt.totalQuestions"
+                             [ngModel]="editCorrect()"
+                             (ngModelChange)="editCorrect.set($event)">
+                    </label>
+                    <button type="button" class="btn btn--small"
+                            (click)="saveEdit(attempt)" [disabled]="savingEdit()">
+                      {{ savingEdit() ? '...' : 'Enregistrer' }}
+                    </button>
+                    <button type="button" class="btn btn--ghost btn--small" (click)="cancelEdit()">
+                      Annuler
+                    </button>
+                  </div>
+                } @else {
+                  <div class="attempts-table__score">
+                    <strong>{{ attempt.scorePercent }} %</strong>
+                    <span>({{ attempt.correctCount }}/{{ attempt.totalQuestions }})</span>
+                  </div>
+                  <div class="attempts-table__actions">
+                    <button type="button" class="btn btn--ghost btn--small"
+                            (click)="openReview(attempt)">
+                      Detail + ML
+                    </button>
+                    <button type="button" class="btn btn--small" (click)="startEdit(attempt)">
+                      Modifier note
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
       </article>
     }
   }

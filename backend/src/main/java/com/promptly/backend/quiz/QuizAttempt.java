@@ -51,6 +51,19 @@ public class QuizAttempt {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String selectedChoiceIdsJson;
 
+    /** Chronometrage / comportement par question (JSON), pour le modele ML. */
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String questionTimingsJson;
+
+    /**
+     * Predictions d'integrite par question (JSON) : GUESS ou KNOW.
+     * Visible uniquement cote enseignant.
+     */
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String integrityPredictionsJson;
+
     @Column(nullable = false, updatable = false)
     private Instant submittedAt;
 
@@ -58,13 +71,16 @@ public class QuizAttempt {
     }
 
     public QuizAttempt(Quiz quiz, User student, int scorePercent, int correctCount,
-                       int totalQuestions, String selectedChoiceIdsJson) {
+                       int totalQuestions, String selectedChoiceIdsJson,
+                       String questionTimingsJson, String integrityPredictionsJson) {
         this.quiz = quiz;
         this.student = student;
         this.scorePercent = scorePercent;
         this.correctCount = correctCount;
         this.totalQuestions = totalQuestions;
         this.selectedChoiceIdsJson = selectedChoiceIdsJson;
+        this.questionTimingsJson = questionTimingsJson;
+        this.integrityPredictionsJson = integrityPredictionsJson;
     }
 
     @PrePersist
@@ -88,8 +104,16 @@ public class QuizAttempt {
         return scorePercent;
     }
 
+    public void setScorePercent(int scorePercent) {
+        this.scorePercent = scorePercent;
+    }
+
     public int getCorrectCount() {
         return correctCount;
+    }
+
+    public void setCorrectCount(int correctCount) {
+        this.correctCount = correctCount;
     }
 
     public int getTotalQuestions() {
@@ -98,6 +122,14 @@ public class QuizAttempt {
 
     public String getSelectedChoiceIdsJson() {
         return selectedChoiceIdsJson;
+    }
+
+    public String getQuestionTimingsJson() {
+        return questionTimingsJson;
+    }
+
+    public String getIntegrityPredictionsJson() {
+        return integrityPredictionsJson;
     }
 
     public Instant getSubmittedAt() {

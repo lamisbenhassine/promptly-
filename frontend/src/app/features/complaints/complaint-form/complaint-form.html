@@ -3,7 +3,8 @@
 
     <h1 class="auth__title">Nouvelle reclamation</h1>
     <p class="auth__subtitle">
-      Decrivez le probleme : un administrateur le traitera ensuite.
+      Decrivez le probleme (objet + description).
+      Le type, l'urgence et la priorite sont analyses automatiquement pour l'administration.
     </p>
 
     @if (errorMessage()) {
@@ -19,15 +20,6 @@
         @if (showError('subject')) {
           <small class="field__error">Entre 5 et 180 caracteres.</small>
         }
-      </div>
-
-      <div class="field">
-        <label for="category">Categorie</label>
-        <select id="category" formControlName="category">
-          @for (category of categories; track category) {
-            <option [ngValue]="category">{{ labels[category] }}</option>
-          }
-        </select>
       </div>
 
       <div class="field">

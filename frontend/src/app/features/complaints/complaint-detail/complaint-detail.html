@@ -17,6 +17,24 @@
                 [class.badge--neutral]="c.status === 'EN_COURS'">
             {{ statusLabels[c.status] }}
           </span>
+          @if (isAdmin() && c.mlUrgency) {
+            <span class="badge"
+                  [class.badge--ko]="c.mlUrgency === 'URGENT'"
+                  [class.badge--neutral]="c.mlUrgency === 'NON_URGENT'">
+              {{ urgencyLabels[c.mlUrgency] }}
+            </span>
+          }
+          @if (isAdmin() && c.mlPriority) {
+            <span class="badge badge--neutral">{{ priorityLabels[c.mlPriority] }}</span>
+          }
+          @if (isAdmin() && c.mlEmotion) {
+            <span class="badge"
+                  [class.badge--ko]="c.mlEmotion === 'ANGRY' || c.mlEmotion === 'FEARFUL' || c.mlEmotion === 'SAD'"
+                  [class.badge--ok]="c.mlEmotion === 'HAPPY'"
+                  [class.badge--neutral]="c.mlEmotion === 'NEUTRAL' || c.mlEmotion === 'SURPRISED'">
+              Emotion : {{ emotionLabels[c.mlEmotion] }}
+            </span>
+          }
         </div>
         <h1>{{ c.subject }}</h1>
         <p class="detail__meta">
@@ -38,6 +56,32 @@
       <h2 class="panel__title">Description</h2>
       <p class="detail__text">{{ c.description }}</p>
     </article>
+
+    @if (isAdmin() && (c.mlUrgency || c.mlPriority || c.mlEmotion)) {
+      <article class="panel ml-panel">
+        <h2 class="panel__title">Analyse ML (admin)</h2>
+        <ul class="ml-panel__list">
+          <li><strong>Type</strong> : {{ categoryLabels[c.category] }}</li>
+          @if (c.mlUrgency) {
+            <li><strong>Urgence</strong> : {{ urgencyLabels[c.mlUrgency] }}</li>
+          }
+          @if (c.mlPriority) {
+            <li><strong>Priorite</strong> : {{ priorityLabels[c.mlPriority] }}</li>
+          }
+          @if (c.mlEmotion) {
+            <li>
+              <strong>Emotion</strong> : {{ emotionLabels[c.mlEmotion] }}
+              @if (c.mlEmotionConfidence != null) {
+                ({{ (c.mlEmotionConfidence * 100) | number:'1.0-0' }}%)
+              }
+            </li>
+          }
+          @if (c.mlConfidence != null) {
+            <li><strong>Confiance classement</strong> : {{ (c.mlConfidence * 100) | number:'1.0-0' }}%</li>
+          }
+        </ul>
+      </article>
+    }
 
     @if (c.adminResponse) {
       <article class="panel">

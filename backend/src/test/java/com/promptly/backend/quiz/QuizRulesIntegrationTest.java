@@ -115,7 +115,7 @@ class QuizRulesIntegrationTest {
         mockMvc.perform(post("/api/quizzes/" + quizId + "/attempts")
                         .header("Authorization", bearer(login(STUDENT_EMAIL, STUDENT_PASSWORD)))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"selectedChoiceIds\":[" + correctChoiceId + "]}"))
+                        .content("{\"selectedChoiceIds\":[" + correctChoiceId + "],\"questionTimings\":[],\"timedOut\":false}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.scorePercent").value(100))
                 .andExpect(jsonPath("$.correctCount").value(1))

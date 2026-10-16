@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { extractErrorMessage } from '../../../core/models/api-error.model';
 import { Chapter, Course } from '../../../core/models/course.model';
-import { QuizPayload } from '../../../core/models/quiz.model';
+import { QuizPayload, QuizQuestionPayload } from '../../../core/models/quiz.model';
 import { CourseService } from '../../../core/services/course.service';
 import { QuizService } from '../../../core/services/quiz.service';
 
@@ -26,7 +26,9 @@ export class QuizForm implements OnInit {
   protected readonly chapters = signal<Chapter[]>([]);
   protected readonly editingId = signal<number | null>(null);
   protected readonly submitting = signal(false);
+  protected readonly generating = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly infoMessage = signal<string | null>(null);
 
   protected readonly form = this.formBuilder.nonNullable.group({
     title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150)]],
@@ -34,6 +36,8 @@ export class QuizForm implements OnInit {
     courseId: [0 as number, [Validators.required, Validators.min(1)]],
     chapterId: [null as number | null],
     published: false,
+    durationMinutes: [15 as number | null],
+    secondsPerQuestion: [60 as number | null],
     questions: this.formBuilder.array([this.createQuestionGroup()])
   });
 
@@ -62,23 +66,19 @@ export class QuizForm implements OnInit {
           description: quiz.description,
           courseId: quiz.courseId,
           chapterId: quiz.chapterId,
-          published: quiz.published
+          published: quiz.published,
+          durationMinutes: quiz.durationMinutes,
+          secondsPerQuestion: quiz.secondsPerQuestion
         });
         this.loadChapters(quiz.courseId);
-        this.questions.clear();
-        for (const question of quiz.questions ?? []) {
-          const group = this.createQuestionGroup();
-          group.patchValue({
-            text: question.text,
-            position: question.position
-          });
-          const choices = group.controls.choices;
-          choices.clear();
-          for (const choice of question.choices) {
-            choices.push(this.createChoiceGroup(choice.text, !!choice.correct));
-          }
-          this.questions.push(group);
-        }
+        this.applyQuestions(quiz.questions?.map((question) => ({
+          text: question.text,
+          position: question.position,
+          choices: question.choices.map((choice) => ({
+            text: choice.text,
+            correct: !!choice.correct
+          }))
+        })) ?? []);
       },
       error: (error) => this.errorMessage.set(
         extractErrorMessage(error, 'Impossible de charger ce quiz'))
@@ -114,6 +114,47 @@ export class QuizForm implements OnInit {
     }
   }
 
+  /** Appelle Ollama : titre + description + cours (+ chapitre) → 10 questions. */
+  protected generateWithAi(): void {
+    this.errorMessage.set(null);
+    this.infoMessage.set(null);
+
+    const titleCtrl = this.form.controls.title;
+    const descriptionCtrl = this.form.controls.description;
+    const courseCtrl = this.form.controls.courseId;
+
+    titleCtrl.markAsTouched();
+    descriptionCtrl.markAsTouched();
+    courseCtrl.markAsTouched();
+
+    if (titleCtrl.invalid || descriptionCtrl.invalid || courseCtrl.invalid || !courseCtrl.value) {
+      this.errorMessage.set(
+        'Renseignez le titre, la description et selectionnez un cours avant de generer.');
+      return;
+    }
+
+    this.generating.set(true);
+
+    this.quizService.generateWithAi({
+      title: titleCtrl.value,
+      description: descriptionCtrl.value,
+      courseId: courseCtrl.value,
+      chapterId: this.form.controls.chapterId.value
+    }).subscribe({
+      next: (result) => {
+        this.applyQuestions(result.questions);
+        this.infoMessage.set(
+          `10 questions generees avec ${result.model} (cours : ${result.courseTitle}). `
+          + 'Verifiez-les puis enregistrez le quiz.');
+        this.generating.set(false);
+      },
+      error: (error) => {
+        this.errorMessage.set(extractErrorMessage(error, 'La generation IA a echoue'));
+        this.generating.set(false);
+      }
+    });
+  }
+
   protected submit(): void {
     this.errorMessage.set(null);
     if (this.form.invalid) {
@@ -128,6 +169,8 @@ export class QuizForm implements OnInit {
       courseId: raw.courseId,
       chapterId: raw.chapterId || null,
       published: raw.published,
+      durationMinutes: raw.durationMinutes || null,
+      secondsPerQuestion: raw.secondsPerQuestion || null,
       questions: raw.questions.map((question, index) => ({
         text: question.text,
         position: question.position || index + 1,
@@ -155,6 +198,31 @@ export class QuizForm implements OnInit {
   protected showError(path: string): boolean {
     const control = this.form.get(path);
     return !!control && control.invalid && control.touched;
+  }
+
+  private applyQuestions(questions: QuizQuestionPayload[]): void {
+    this.questions.clear();
+    if (!questions.length) {
+      this.questions.push(this.createQuestionGroup());
+      return;
+    }
+
+    questions.forEach((question, index) => {
+      const group = this.createQuestionGroup();
+      group.patchValue({
+        text: question.text,
+        position: question.position || index + 1
+      });
+      const choices = group.controls.choices;
+      choices.clear();
+      const sourceChoices = question.choices?.length
+        ? question.choices
+        : [{ text: '', correct: true }, { text: '', correct: false }];
+      for (const choice of sourceChoices) {
+        choices.push(this.createChoiceGroup(choice.text, !!choice.correct));
+      }
+      this.questions.push(group);
+    });
   }
 
   private createQuestionGroup() {

@@ -38,6 +38,26 @@ public class Complaint {
     @Column(nullable = false, length = 40)
     private ComplaintCategory category = ComplaintCategory.AUTRE;
 
+    /** Urgence predite par le ML (visible admin seulement). */
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private ComplaintUrgency mlUrgency;
+
+    /** Priorite predite par le ML (visible admin seulement). */
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private ComplaintPriority mlPriority;
+
+    /** Confiance moyenne du classifieur (0..1). */
+    private Double mlConfidence;
+
+    /** Emotion predite (style d'ecriture) — visible admin seulement. */
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private ComplaintEmotion mlEmotion;
+
+    private Double mlEmotionConfidence;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private ComplaintStatus status = ComplaintStatus.OUVERTE;
@@ -70,6 +90,17 @@ public class Complaint {
         this.description = description;
         this.category = category;
         this.author = author;
+    }
+
+    public void applyMlPrediction(ComplaintCategory category, ComplaintUrgency urgency,
+                                  ComplaintPriority priority, Double confidence,
+                                  ComplaintEmotion emotion, Double emotionConfidence) {
+        this.category = category;
+        this.mlUrgency = urgency;
+        this.mlPriority = priority;
+        this.mlConfidence = confidence;
+        this.mlEmotion = emotion;
+        this.mlEmotionConfidence = emotionConfidence;
     }
 
     @PrePersist
@@ -109,6 +140,26 @@ public class Complaint {
 
     public void setCategory(ComplaintCategory category) {
         this.category = category;
+    }
+
+    public ComplaintUrgency getMlUrgency() {
+        return mlUrgency;
+    }
+
+    public ComplaintPriority getMlPriority() {
+        return mlPriority;
+    }
+
+    public Double getMlConfidence() {
+        return mlConfidence;
+    }
+
+    public ComplaintEmotion getMlEmotion() {
+        return mlEmotion;
+    }
+
+    public Double getMlEmotionConfidence() {
+        return mlEmotionConfidence;
     }
 
     public ComplaintStatus getStatus() {

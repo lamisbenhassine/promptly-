@@ -83,3 +83,15 @@ export interface PdfSummary {
   sourceTitle: string;
   truncatedHint: boolean;
 }
+
+export interface Flashcard {
+  front: string;
+  back: string;
+}
+
+/** Reponse de POST /api/ai/.../flashcards. */
+export interface FlashcardsResult {
+  cards: Flashcard[];
+  model: string;
+  sourceTitle: string;
+}

@@ -13,6 +13,10 @@ import com.promptly.backend.common.exception.ResourceNotFoundException;
 import com.promptly.backend.complaint.dto.ComplaintRequest;
 import com.promptly.backend.complaint.dto.ComplaintResponse;
 import com.promptly.backend.complaint.dto.ComplaintStatusRequest;
+import com.promptly.backend.complaint.emotion.ComplaintEmotionResult;
+import com.promptly.backend.complaint.emotion.ComplaintEmotionService;
+import com.promptly.backend.complaint.ml.ComplaintMlClient;
+import com.promptly.backend.complaint.ml.ComplaintMlPrediction;
 import com.promptly.backend.user.Role;
 import com.promptly.backend.user.User;
 import com.promptly.backend.user.UserService;
@@ -23,35 +27,59 @@ public class ComplaintService {
 
     private final ComplaintRepository complaintRepository;
     private final UserService userService;
+    private final ComplaintMlClient complaintMlClient;
+    private final ComplaintEmotionService complaintEmotionService;
 
-    public ComplaintService(ComplaintRepository complaintRepository, UserService userService) {
+    public ComplaintService(ComplaintRepository complaintRepository,
+                            UserService userService,
+                            ComplaintMlClient complaintMlClient,
+                            ComplaintEmotionService complaintEmotionService) {
         this.complaintRepository = complaintRepository;
         this.userService = userService;
+        this.complaintMlClient = complaintMlClient;
+        this.complaintEmotionService = complaintEmotionService;
     }
 
     public Page<ComplaintResponse> list(String viewerEmail, ComplaintStatus status, Pageable pageable) {
         User viewer = userService.findByEmail(viewerEmail);
-        Long authorFilter = viewer.getRole() == Role.ADMIN ? null : viewer.getId();
+        boolean revealMl = viewer.getRole() == Role.ADMIN;
+        Long authorFilter = revealMl ? null : viewer.getId();
         return complaintRepository.search(status, authorFilter, pageable)
-                .map(ComplaintResponse::from);
+                .map(complaint -> ComplaintResponse.from(complaint, revealMl));
     }
 
     public ComplaintResponse get(Long id, String viewerEmail) {
         User viewer = userService.findByEmail(viewerEmail);
         Complaint complaint = findById(id);
         ensureCanView(complaint, viewer);
-        return ComplaintResponse.from(complaint);
+        return ComplaintResponse.from(complaint, viewer.getRole() == Role.ADMIN);
     }
 
     @Transactional
     public ComplaintResponse create(String authorEmail, ComplaintRequest request) {
         User author = userService.findByEmail(authorEmail);
+        String subject = request.subject().trim();
+        String description = request.description().trim();
+
+        ComplaintMlPrediction prediction = complaintMlClient.classify(subject, description);
+        ComplaintEmotionResult emotion = complaintEmotionService.detect(subject, description);
+
         Complaint complaint = new Complaint(
-                request.subject().trim(),
-                request.description().trim(),
-                request.category(),
+                subject,
+                description,
+                prediction.category(),
                 author);
-        return ComplaintResponse.from(complaintRepository.save(complaint));
+        complaint.applyMlPrediction(
+                prediction.category(),
+                prediction.urgency(),
+                prediction.priority(),
+                prediction.confidence(),
+                emotion.emotion(),
+                emotion.confidence());
+
+        Complaint saved = complaintRepository.save(complaint);
+        // L'auteur ne voit pas urgence / priorite / emotion admin.
+        return ComplaintResponse.from(saved, author.getRole() == Role.ADMIN);
     }
 
     @Transactional
@@ -82,7 +110,7 @@ public class ComplaintService {
             complaint.setResolvedAt(null);
         }
 
-        return ComplaintResponse.from(complaintRepository.save(complaint));
+        return ComplaintResponse.from(complaintRepository.save(complaint), true);
     }
 
     @Transactional

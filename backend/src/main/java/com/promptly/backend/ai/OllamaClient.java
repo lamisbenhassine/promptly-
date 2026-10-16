@@ -1,6 +1,7 @@
 package com.promptly.backend.ai;
 
 import java.time.Duration;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -43,16 +44,29 @@ public class OllamaClient {
     }
 
     public String generate(String prompt) {
+        return generate(prompt, 0.3, 800, false);
+    }
+
+    public String generate(String prompt, double temperature, int numPredict) {
+        return generate(prompt, temperature, numPredict, false);
+    }
+
+    /**
+     * @param jsonMode si vrai, demande a Ollama une reponse JSON forcee ({@code format: json}).
+     */
+    public String generate(String prompt, double temperature, int numPredict, boolean jsonMode) {
         try {
-            Map<String, Object> body = Map.of(
-                    "model", model,
-                    "prompt", prompt,
-                    "stream", false,
-                    "options", Map.of(
-                            "temperature", 0.3,
-                            "num_predict", 800
-                    )
-            );
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("model", model);
+            body.put("prompt", prompt);
+            body.put("stream", false);
+            body.put("options", Map.of(
+                    "temperature", temperature,
+                    "num_predict", numPredict
+            ));
+            if (jsonMode) {
+                body.put("format", "json");
+            }
 
             OllamaGenerateResponse response = restClient.post()
                     .uri("/api/generate")

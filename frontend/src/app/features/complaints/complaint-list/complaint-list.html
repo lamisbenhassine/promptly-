@@ -5,7 +5,7 @@
       <h1>Reclamations</h1>
       <p class="courses__subtitle">
         @if (isAdmin()) {
-          Traitement et suivi des demandes des utilisateurs.
+          Traitement et suivi : type, urgence et priorite predits par le ML.
         } @else {
           Deposez une demande et suivez son traitement.
         }
@@ -49,6 +49,24 @@
                   [class.badge--neutral]="c.status === 'EN_COURS'">
               {{ statusLabels[c.status] }}
             </span>
+            @if (isAdmin() && c.mlUrgency) {
+              <span class="badge"
+                    [class.badge--ko]="c.mlUrgency === 'URGENT'"
+                    [class.badge--neutral]="c.mlUrgency === 'NON_URGENT'">
+                {{ urgencyLabels[c.mlUrgency] }}
+              </span>
+            }
+            @if (isAdmin() && c.mlPriority) {
+              <span class="badge badge--neutral">{{ priorityLabels[c.mlPriority] }}</span>
+            }
+            @if (isAdmin() && c.mlEmotion) {
+              <span class="badge"
+                    [class.badge--ko]="c.mlEmotion === 'ANGRY' || c.mlEmotion === 'FEARFUL' || c.mlEmotion === 'SAD'"
+                    [class.badge--ok]="c.mlEmotion === 'HAPPY'"
+                    [class.badge--neutral]="c.mlEmotion === 'NEUTRAL' || c.mlEmotion === 'SURPRISED'">
+                {{ emotionLabels[c.mlEmotion] }}
+              </span>
+            }
           </div>
           <h2 class="post-card__title">
             <a [routerLink]="['/reclamations', c.id]">{{ c.subject }}</a>

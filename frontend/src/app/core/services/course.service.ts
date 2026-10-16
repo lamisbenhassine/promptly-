@@ -9,6 +9,7 @@ import {
   Course,
   CourseCategory,
   CoursePayload,
+  FlashcardsResult,
   PdfSummary
 } from '../models/course.model';
 import { Page } from '../models/user.model';
@@ -114,6 +115,17 @@ export class CourseService {
   summarizeChapterPdf(courseId: number, chapterId: number): Observable<PdfSummary> {
     return this.http.post<PdfSummary>(
       `${this.aiUrl}/courses/${courseId}/chapters/${chapterId}/summarize-pdf`,
+      {}
+    );
+  }
+
+  flashcardsForCourse(courseId: number): Observable<FlashcardsResult> {
+    return this.http.post<FlashcardsResult>(`${this.aiUrl}/courses/${courseId}/flashcards`, {});
+  }
+
+  flashcardsForChapter(courseId: number, chapterId: number): Observable<FlashcardsResult> {
+    return this.http.post<FlashcardsResult>(
+      `${this.aiUrl}/courses/${courseId}/chapters/${chapterId}/flashcards`,
       {}
     );
   }

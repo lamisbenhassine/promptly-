@@ -3,12 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { extractErrorMessage } from '../../../core/models/api-error.model';
-import {
-  COMPLAINT_CATEGORIES,
-  COMPLAINT_CATEGORY_LABELS,
-  ComplaintCategory,
-  ComplaintPayload
-} from '../../../core/models/complaint.model';
+import { ComplaintPayload } from '../../../core/models/complaint.model';
 import { ComplaintService } from '../../../core/services/complaint.service';
 
 @Component({
@@ -22,15 +17,12 @@ export class ComplaintForm {
   private readonly complaintService = inject(ComplaintService);
   private readonly router = inject(Router);
 
-  protected readonly categories = COMPLAINT_CATEGORIES;
-  protected readonly labels = COMPLAINT_CATEGORY_LABELS;
   protected readonly submitting = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
 
   protected readonly form = this.formBuilder.nonNullable.group({
     subject: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(180)]],
-    description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(5000)]],
-    category: this.formBuilder.nonNullable.control<ComplaintCategory>('TECHNIQUE', Validators.required)
+    description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(5000)]]
   });
 
   protected submit(): void {

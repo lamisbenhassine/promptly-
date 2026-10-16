@@ -17,9 +17,12 @@ public record AttemptResponse(
         int correctCount,
         int totalQuestions,
         List<Long> selectedChoiceIds,
+        List<QuestionReview> review,
         Instant submittedAt
 ) {
-    public static AttemptResponse from(QuizAttempt attempt, List<Long> selectedChoiceIds) {
+    public static AttemptResponse from(QuizAttempt attempt,
+                                       List<Long> selectedChoiceIds,
+                                       List<QuestionReview> review) {
         return new AttemptResponse(
                 attempt.getId(),
                 attempt.getQuiz().getId(),
@@ -32,6 +35,7 @@ public record AttemptResponse(
                 attempt.getCorrectCount(),
                 attempt.getTotalQuestions(),
                 selectedChoiceIds,
+                review,
                 attempt.getSubmittedAt());
     }
 }

@@ -65,13 +65,14 @@ class ComplaintRulesIntegrationTest {
                         .content("""
                                 {
                                   "subject": "Quiz inaccessible",
-                                  "description": "Le quiz du cours Java renvoie une erreur 500.",
-                                  "category": "TECHNIQUE"
+                                  "description": "Le quiz du cours Java renvoie une erreur 500."
                                 }
                                 """))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.subject").value("Quiz inaccessible"))
-                .andExpect(jsonPath("$.status").value("OUVERTE"));
+                .andExpect(jsonPath("$.status").value("OUVERTE"))
+                .andExpect(jsonPath("$.category").exists())
+                .andExpect(jsonPath("$.mlUrgency").doesNotExist());
     }
 
     @Test
@@ -136,8 +137,7 @@ class ComplaintRulesIntegrationTest {
                         .content("""
                                 {
                                   "subject": "Quiz inaccessible",
-                                  "description": "Le quiz du cours Java renvoie une erreur 500.",
-                                  "category": "TECHNIQUE"
+                                  "description": "Le quiz du cours Java renvoie une erreur 500."
                                 }
                                 """))
                 .andExpect(status().isCreated())
