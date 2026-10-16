@@ -30,7 +30,7 @@ export class Home implements OnInit {
     { title: 'Evaluations', description: 'Quiz a choix multiples et scores.', done: true },
     { title: 'Forum', description: 'Entraide et discussions techniques.', done: true },
     { title: 'Reclamations', description: 'Suivi des demandes des etudiants.', done: true },
-    { title: 'Assistant IA', description: 'Fonctionnalites a definir (Ollama ou API externe).', done: false }
+    { title: 'Assistant IA', description: 'Chatbot general via Ollama (aide code + plateforme).', done: true }
   ];
 
   ngOnInit(): void {

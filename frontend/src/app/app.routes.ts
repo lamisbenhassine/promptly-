@@ -88,6 +88,12 @@ export const routes: Routes = [
     title: 'Promptly - Recherche'
   },
   {
+    path: 'ia',
+    loadComponent: () => import('./features/assistant/assistant').then((m) => m.Assistant),
+    canActivate: [authGuard],
+    title: 'Promptly - Assistant IA'
+  },
+  {
     path: 'reclamations',
     loadComponent: () => import('./features/complaints/complaint-list/complaint-list').then((m) => m.ComplaintList),
     canActivate: [authGuard],

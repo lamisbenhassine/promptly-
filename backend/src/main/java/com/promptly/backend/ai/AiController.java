@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.promptly.backend.ai.dto.ChatRequest;
+import com.promptly.backend.ai.dto.ChatResponse;
 import com.promptly.backend.ai.dto.FlashcardsResponse;
 import com.promptly.backend.ai.dto.GenerateQuizRequest;
 import com.promptly.backend.ai.dto.GeneratedQuizResponse;
@@ -17,7 +19,7 @@ import com.promptly.backend.ai.dto.SummaryResponse;
 import jakarta.validation.Valid;
 
 /**
- * Endpoints IA (resume, flashcards, generation de quiz via Ollama).
+ * Endpoints IA (chatbot, resume, flashcards, generation de quiz via Ollama).
  */
 @RestController
 @RequestMapping("/api/ai")
@@ -25,10 +27,20 @@ public class AiController {
 
     private final AiSummaryService aiSummaryService;
     private final AiQuizService aiQuizService;
+    private final AiChatService aiChatService;
 
-    public AiController(AiSummaryService aiSummaryService, AiQuizService aiQuizService) {
+    public AiController(AiSummaryService aiSummaryService,
+                        AiQuizService aiQuizService,
+                        AiChatService aiChatService) {
         this.aiSummaryService = aiSummaryService;
         this.aiQuizService = aiQuizService;
+        this.aiChatService = aiChatService;
+    }
+
+    /** Chatbot general (tous les utilisateurs connectes). */
+    @PostMapping("/chat")
+    public ChatResponse chat(@Valid @RequestBody ChatRequest request) {
+        return aiChatService.chat(request);
     }
 
     @PostMapping("/courses/{courseId}/summarize-pdf")

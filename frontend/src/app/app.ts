@@ -39,7 +39,7 @@ export class App {
     { label: 'Quiz', path: '/quiz', icon: '📝', enabled: true },
     { label: 'Forum', path: '/forum', icon: '💬', enabled: true },
     { label: 'Reclamations', path: '/reclamations', icon: '📩', enabled: true },
-    { label: 'Assistant IA', path: '/ia', icon: '✨', enabled: false }
+    { label: 'Assistant IA', path: '/ia', icon: '✨', enabled: true }
   ]);
 
   constructor() {

@@ -1,0 +1,60 @@
+<section class="assistant">
+  <header class="assistant__header">
+    <div>
+      <h1>Assistant IA</h1>
+      <p class="assistant__subtitle">
+        Chatbot general Promptly (Ollama). Posez vos questions sur le code ou la plateforme.
+      </p>
+    </div>
+    <button type="button" class="btn btn--ghost" (click)="clearChat()" [disabled]="loading()">
+      Nouvelle conversation
+    </button>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  <div class="assistant__suggestions" aria-label="Suggestions">
+    @for (s of suggestions; track s) {
+      <button type="button" class="chip" (click)="useSuggestion(s)" [disabled]="loading()">
+        {{ s }}
+      </button>
+    }
+  </div>
+
+  <div #thread class="assistant__thread" role="log" aria-live="polite">
+    @for (msg of messages(); track $index) {
+      <article class="bubble" [class.bubble--user]="msg.role === 'user'"
+               [class.bubble--assistant]="msg.role === 'assistant'">
+        <span class="bubble__role">{{ msg.role === 'user' ? 'Vous' : 'Assistant' }}</span>
+        <p class="bubble__text">{{ msg.content }}</p>
+      </article>
+    }
+    @if (loading()) {
+      <article class="bubble bubble--assistant bubble--pending">
+        <span class="bubble__role">Assistant</span>
+        <p class="bubble__text">Reflexion en cours…</p>
+      </article>
+    }
+  </div>
+
+  <form class="assistant__composer" (ngSubmit)="send()">
+    <label class="sr-only" for="assistant-input">Votre message</label>
+    <textarea id="assistant-input"
+              rows="3"
+              [ngModel]="draft()"
+              (ngModelChange)="draft.set($event)"
+              (keydown)="onKeydown($event)"
+              name="draft"
+              placeholder="Ecrivez votre question… (Entree pour envoyer, Maj+Entree pour une ligne)"
+              [disabled]="loading()"></textarea>
+    <button type="submit" class="btn" [disabled]="loading() || !draft().trim()">
+      {{ loading() ? 'Envoi…' : 'Envoyer' }}
+    </button>
+  </form>
+
+  @if (modelName()) {
+    <p class="assistant__meta">Modele : {{ modelName() }}</p>
+  }
+</section>

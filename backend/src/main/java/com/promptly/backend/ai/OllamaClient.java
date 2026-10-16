@@ -1,7 +1,9 @@
 package com.promptly.backend.ai;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -16,7 +18,7 @@ import org.springframework.web.client.RestClientException;
 import com.promptly.backend.common.exception.BusinessRuleException;
 
 /**
- * Client HTTP vers Ollama ({@code /api/generate}).
+ * Client HTTP vers Ollama ({@code /api/generate} et {@code /api/chat}).
  * Ollama doit tourner localement (ex. {@code http://localhost:11434}).
  */
 @Service
@@ -81,9 +83,51 @@ public class OllamaClient {
             return response.response().trim();
         } catch (RestClientException e) {
             log.warn("Echec appel Ollama ({}) : {}", model, e.getMessage());
-            throw new BusinessRuleException(
-                    "Ollama est injoignable. Verifiez que le service tourne "
-                            + "(ollama serve) avec le modele " + model + ".");
+            throw unreachable();
+        }
+    }
+
+    /**
+     * Chat multi-tours via {@code /api/chat} (roles system / user / assistant).
+     */
+    public String chat(List<ChatMessage> messages, double temperature, int numPredict) {
+        if (messages == null || messages.isEmpty()) {
+            throw new BusinessRuleException("Aucun message a envoyer a Ollama");
+        }
+        try {
+            List<Map<String, String>> payloadMessages = new ArrayList<>();
+            for (ChatMessage message : messages) {
+                payloadMessages.add(Map.of(
+                        "role", message.role(),
+                        "content", message.content()
+                ));
+            }
+
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("model", model);
+            body.put("messages", payloadMessages);
+            body.put("stream", false);
+            body.put("options", Map.of(
+                    "temperature", temperature,
+                    "num_predict", numPredict
+            ));
+
+            OllamaChatResponse response = restClient.post()
+                    .uri("/api/chat")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(body)
+                    .retrieve()
+                    .body(OllamaChatResponse.class);
+
+            if (response == null || response.message() == null
+                    || response.message().content() == null
+                    || response.message().content().isBlank()) {
+                throw new BusinessRuleException("Ollama a renvoye une reponse vide");
+            }
+            return response.message().content().trim();
+        } catch (RestClientException e) {
+            log.warn("Echec chat Ollama ({}) : {}", model, e.getMessage());
+            throw unreachable();
         }
     }
 
@@ -91,7 +135,23 @@ public class OllamaClient {
         return model;
     }
 
+    private BusinessRuleException unreachable() {
+        return new BusinessRuleException(
+                "Ollama est injoignable. Verifiez que le service tourne "
+                        + "(ollama serve) avec le modele " + model + ".");
+    }
+
+    public record ChatMessage(String role, String content) {
+    }
+
     /** Sous-ensemble de la reponse Ollama /api/generate. */
     public record OllamaGenerateResponse(String response) {
+    }
+
+    /** Sous-ensemble de la reponse Ollama /api/chat. */
+    public record OllamaChatResponse(OllamaChatMessage message) {
+    }
+
+    public record OllamaChatMessage(String role, String content) {
     }
 }

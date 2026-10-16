@@ -16,6 +16,8 @@ import com.promptly.backend.forum.dto.ForumCommentResponse;
 import com.promptly.backend.forum.dto.ForumPostRequest;
 import com.promptly.backend.forum.dto.ForumPostResponse;
 import com.promptly.backend.forum.dto.ReactionSummary;
+import com.promptly.backend.moderation.ProfanityFilterService;
+import com.promptly.backend.moderation.SpellCorrectService;
 import com.promptly.backend.storage.FileStorageService;
 import com.promptly.backend.user.Role;
 import com.promptly.backend.user.User;
@@ -30,17 +32,23 @@ public class ForumService {
     private final ForumReactionRepository reactionRepository;
     private final UserService userService;
     private final FileStorageService fileStorageService;
+    private final ProfanityFilterService profanityFilterService;
+    private final SpellCorrectService spellCorrectService;
 
     public ForumService(ForumPostRepository postRepository,
                         ForumCommentRepository commentRepository,
                         ForumReactionRepository reactionRepository,
                         UserService userService,
-                        FileStorageService fileStorageService) {
+                        FileStorageService fileStorageService,
+                        ProfanityFilterService profanityFilterService,
+                        SpellCorrectService spellCorrectService) {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
         this.reactionRepository = reactionRepository;
         this.userService = userService;
         this.fileStorageService = fileStorageService;
+        this.profanityFilterService = profanityFilterService;
+        this.spellCorrectService = spellCorrectService;
     }
 
     public Page<ForumPostResponse> list(String viewerEmail, ForumCategory category,
@@ -66,11 +74,10 @@ public class ForumService {
     @Transactional
     public ForumPostResponse createPost(String authorEmail, ForumPostRequest request) {
         User author = userService.findByEmail(authorEmail);
-        ForumPost post = new ForumPost(
-                request.title().trim(),
-                request.content().trim(),
-                request.category(),
-                author);
+        String title = cleanUserText(request.title().trim());
+        String content = cleanUserText(request.content().trim());
+
+        ForumPost post = new ForumPost(title, content, request.category(), author);
         ForumPost saved = postRepository.save(post);
         return ForumPostResponse.detail(saved, List.of(), ReactionSummary.empty());
     }
@@ -81,8 +88,11 @@ public class ForumService {
         ForumPost post = findPost(id);
         ensureCanEditPost(post, editor);
 
-        post.setTitle(request.title().trim());
-        post.setContent(request.content().trim());
+        String title = cleanUserText(request.title().trim());
+        String content = cleanUserText(request.content().trim());
+
+        post.setTitle(title);
+        post.setContent(content);
         post.setCategory(request.category());
         return get(postRepository.save(post).getId(), editorEmail);
     }
@@ -159,7 +169,9 @@ public class ForumService {
             throw new BusinessRuleException("Ce sujet est verrouille : aucun commentaire n'est accepte.");
         }
 
-        ForumComment comment = new ForumComment(request.content().trim(), post, author);
+        String content = cleanUserText(request.content().trim());
+
+        ForumComment comment = new ForumComment(content, post, author);
         ForumComment saved = commentRepository.save(comment);
         post.touch();
         postRepository.save(post);
@@ -172,8 +184,15 @@ public class ForumService {
         User editor = userService.findByEmail(editorEmail);
         ForumComment comment = findComment(postId, commentId);
         ensureCanEditComment(comment, editor);
-        comment.setContent(request.content().trim());
+        String content = cleanUserText(request.content().trim());
+        comment.setContent(content);
         return ForumCommentResponse.from(commentRepository.save(comment));
+    }
+
+    /** Auto-correction puis censure des gros mots (***). */
+    private String cleanUserText(String text) {
+        String corrected = spellCorrectService.correct(text);
+        return profanityFilterService.censor(corrected);
     }
 
     @Transactional
