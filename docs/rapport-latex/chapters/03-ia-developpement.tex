@@ -1,0 +1,692 @@
+\chapter{IA utilisee pour developper le projet}
+\label{ch:dev}
+
+\section{Outils et modeles}
+
+Il faut distinguer l'\textbf{environnement} (ou l'on ecrit les prompts) et le
+\textbf{modele d'IA} (qui produit les reponses).
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}p{3.5cm}p{9.5cm}@{}}
+\toprule
+Element & Role \\
+\midrule
+\textbf{ChatGPT} (web) &
+Premier echange : expression du besoin ; generation du prompt structure
+a coller ensuite dans Cursor. \\
+\textbf{Cursor} &
+Editeur / IDE (mode Agent) : interface de chat, fichiers du projet, terminal.
+Ce n'est pas le modele lui-meme. \\
+\textbf{Claude} (Anthropic) &
+Modele utilise dans Cursor pour generer et corriger le code
+(ex.\ Claude~5.5 / Sonnet). \\
+\textbf{Grok} (xAI) &
+Autre modele propose dans Cursor, egalement utilise selon les besoins. \\
+\bottomrule
+\end{tabular}
+\caption{Outils (environnement) et modeles d'IA de developpement}
+\end{table}
+
+En resume : \textbf{Cursor = editeur} ; \textbf{Claude / Grok = IA} qui repondent
+aux prompts a l'interieur de Cursor. ChatGPT a ete utilise en amont pour preparer
+le premier prompt. Les sessions ci-dessous sont reconstituees a partir de
+l'\textbf{historique de chat} Cursor (prompts reels + resultats observes).
+
+\section{Chaine initiale : ChatGPT puis Cursor}
+\label{sec:chatgpt-cursor}
+
+\subsection{Prompt de l'auteur a ChatGPT}
+
+\begin{promptbox}[title={Prompt utilisateur $\rightarrow$ ChatGPT}]
+i will make acadamique project so the project about elearning named promptly
+for giving courses about coding like springboot java angular \ldots{} and
+algorithme the gestion of the project is reclamation, cours and chapter,
+evaluation like small test quiz, forome like samll comunite all the student
+will make postes and told to each other so this project about how to use the
+ia to make the project like i use currsor or chatgpt the prffesor told as to
+give he screen shot of the promte and the result after the prompt and
+correction of the promte if we need it and also how we use the ia in the
+project like how we use olama if we work with it and how we use api extern in
+the project exetera bacouse we will make rapport about this in the end so
+give me promte give it to the currsor to make this and dont forget the
+content of the rapport becouse if we need screenshot lets make it to put in
+in the rapport like i tolde u the part how we use ia in the porcet and how we
+use ia to make the project also told him to begin with the template then we
+need to make gestion by gestion don't make the full project in one prmote the
+project with springboot and angular lets begin with the template then make
+the other gestion step by step each step need confiramtion
+\end{promptbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{chatgpt/01-prompt-utilisateur.png}
+  \caption{Capture --- premier prompt envoye a ChatGPT}
+  \label{fig:chatgpt-prompt}
+\end{figure}
+
+\subsection{Resultat ChatGPT : prompt pour Cursor}
+
+\begin{resultbox}[title={Reponse ChatGPT --- resume du prompt pour Cursor}]
+\textbf{Stack.} Backend : Java~17, Spring Boot, Web, JPA, Security, Validation,
+Maven, MySQL. Frontend : Angular, TypeScript, Router, services, Reactive Forms,
+UI responsive.
+
+\textbf{Architecture.} Monolithe : un backend Spring Boot, un frontend Angular,
+une base MySQL. Packages classiques ; pas de microservices.
+
+\textbf{Contraintes.} Interdit : Eureka, API Gateway, Docker/Kubernetes.
+Execution locale ; Spring Boot connecte directement a MySQL.
+
+\textbf{IA (plus tard).} Ollama et APIs externes seulement apres validation.
+
+\textbf{Workflow etape~1 (template).} Initialiser Spring Boot + Angular,
+MySQL, page d'accueil, health-check ; attendre confirmation avant chaque
+module suivant.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{chatgpt/02a-reponse-chatgpt-stack.png}
+  \caption{Capture --- prompt Cursor genere par ChatGPT (stack et architecture)}
+  \label{fig:chatgpt-result-stack}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{chatgpt/02b-reponse-chatgpt-workflow.png}
+  \caption{Capture --- suite du prompt Cursor (contraintes, IA, workflow template)}
+  \label{fig:chatgpt-result-workflow}
+\end{figure}
+
+\section{Sessions Cursor par gestion}
+\label{sec:sessions-cursor}
+
+Chaque sous-section = une \textbf{gestion} (ou un lot de prompts lies).
+Format : \textbf{Prompt} $\rightarrow$ \textbf{Resultat}
+(et corrections si un probleme a ete corrige dans le chat).
+Modele dans Cursor : \textbf{Claude~5.5} / \textbf{Grok} (selon la session).
+
+%----------------------------------------------------------------------
+\subsection{S0 --- Fondation (template Spring Boot + Angular)}
+\label{sec:s0}
+
+\textbf{Modele :} Claude / Grok (Cursor Agent)
+
+\begin{promptbox}[title={Prompt (issu de ChatGPT, colle dans Cursor)}]
+Academic E-Learning Project --- Promptly. Develop progressively,
+management by management, confirm each step. Phase~0 / template only:
+inspect workspace, propose folder structure, initialize Spring Boot backend,
+Angular frontend, configure MySQL, simple Promptly home page, health-check
+endpoint, verify Angular~$\leftrightarrow$~Spring Boot. Do not implement
+auth, courses, quizzes or AI yet.
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Workspace initialise : backend Spring Boot (Maven, MySQL, \texttt{/api/health}),
+frontend Angular, README. Communication Angular~$\leftrightarrow$~API verifiee.
+Attente de confirmation avant le module suivant.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S0-health-api.png}
+  \caption{Capture Promptly --- health-check API (\texttt{/api/health})}
+  \label{fig:s0-health}
+\end{figure}
+
+%----------------------------------------------------------------------
+\subsection{S1 --- Authentification et utilisateurs}
+\label{sec:s1}
+
+\begin{promptbox}
+Implement Module~1 --- Authentication and User Management:
+registration, login, JWT, roles (ETUDIANT / ENSEIGNANT / ADMIN),
+admin user list, access restrictions.
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Auth complete : inscription, login JWT, roles, page admin utilisateurs.
+Tests backend \texttt{BUILD SUCCESS} ; routes protegees (\texttt{401}/\texttt{403}
+verifies). Compte admin initialise via variables d'environnement.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S1-admin-utilisateurs.png}
+  \caption{Capture Promptly --- administration des utilisateurs}
+  \label{fig:s1-users}
+\end{figure}
+
+\begin{promptbox}[title={Prompt suivant --- Google Sign-In}]
+lets make in the user part login with gmail make the code and tell me what
+i have to add like i have to take token \ldots
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Bouton Google sur Connexion / Inscription. Frontend envoie l'ID token a
+\texttt{POST /api/auth/google} ; backend verifie avec le Client~ID puis
+emet le JWT Promptly. Configuration :
+\texttt{googleClientId} (frontend) + \texttt{PROMPTLY\_GOOGLE\_CLIENT\_ID}.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{app/S1-google-login.png}
+  \caption{Capture Promptly --- Connexion avec bouton Google}
+  \label{fig:s1-google}
+\end{figure}
+
+\begin{promptbox}[title={Prompt --- page d'accueil}]
+the first page make it like login or gigin up olny without the nav and side bar
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+\texttt{/} redirige vers Connexion (ou Cours si deja connecte).
+Pages Connexion / Inscription sans navbar ni sidebar.
+Bouton Google visible sur la page de connexion.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{app/S1-connexion.png}
+  \caption{Capture Promptly --- page Connexion (sans nav/sidebar) + Google}
+  \label{fig:s1-login}
+\end{figure}
+
+%----------------------------------------------------------------------
+\subsection{S2 --- Cours et chapitres}
+\label{sec:s2}
+
+\begin{promptbox}
+implement module 2
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+CRUD cours : categories (Java, Spring Boot, Angular, \ldots), publication,
+roles (etudiant = publies ; enseignant = ses cours ; admin = tous).
+Routes \texttt{/cours}, formulaires, catalogue filtre.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S2-cours-catalogue.png}
+  \caption{Capture Promptly --- catalogue des cours}
+  \label{fig:s2-cours}
+\end{figure}
+
+\begin{promptbox}
+add img to the cours and upload pdf to the cours and chapter to the cours
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Upload image de couverture + PDF cours ; chapitres lies au cours avec PDF ;
+fichiers servis via \texttt{/api/files/**} (dossier \texttt{uploads/}).
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S2-cours-form-media.png}
+  \caption{Capture Promptly --- formulaire cours (image de couverture + PDF)}
+  \label{fig:s2-media}
+\end{figure}
+
+\begin{promptbox}
+make it when i add chapter i choose the cours of the chapter
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Formulaire << Nouveau chapitre >> avec liste deroulante de cours
+(presaisie si on vient d'une fiche cours).
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S2-chapitre-form.png}
+  \caption{Capture Promptly --- Nouveau chapitre (choix du cours)}
+  \label{fig:s2-chapitre}
+\end{figure}
+
+%----------------------------------------------------------------------
+\subsection{S3 --- Evaluations / Quiz}
+\label{sec:s3}
+
+\begin{promptbox}
+MAKE THE NEXT GESTION
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Module Quiz : QCM lies a un cours (chapitre optionnel), passage etudiant,
+score ; enseignants voient les tentatives. Nav \texttt{/quiz}.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S3-quiz-liste.png}
+  \caption{Capture Promptly --- liste des quiz}
+  \label{fig:s3-quiz-list}
+\end{figure}
+
+\begin{promptbox}
+now i need to make in the evaluation generation quiez with ollma when i add
+the titre and description and when i slect the cours of the quiz take all
+this then tell the ollma to make quiz with 10 quetions
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Bouton << Generer 10 questions avec IA >> : Ollama utilise titre, description
+et contenu du cours/chapitre/PDF pour proposer 10 QCM a revoir avant creation.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S3-quiz-form-ia.png}
+  \caption{Capture Promptly --- Nouveau quiz (timers + Generer 10 questions avec IA)}
+  \label{fig:s3-quiz-form}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S3-quiz-detail.png}
+  \caption{Capture Promptly --- detail d'un quiz genere (questions + bonnes reponses)}
+  \label{fig:s3-quiz-detail}
+\end{figure}
+
+\begin{promptbox}
+make the student see the score nad the good reponse and the bad one and make
+the techer can see all the student make the quiz with the result and maken him
+can edit the result
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Etudiant : score + correction (bonnes/mauvaises reponses). Enseignant :
+liste des tentatives, detail, modification de note.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S3-quiz-scores.png}
+  \caption{Capture Promptly --- score et correction detaillee d'une tentative}
+  \label{fig:s3-scores}
+\end{figure}
+
+\begin{promptbox}
+make the quiz like this when i make the quiz i can add time when the time is
+over the quiz will close and the quetion will come one by one not all the
+quetion in the same page and make counter olso to each quetion then make
+programe with machine learing then connect it to the prject the programe
+predect the student when he check the answer he check it randomly or he know
+the answer make onlly the techer see the guess or know the answer
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Minuteur global + par question ; une question a la fois ; auto-soumission.
+Service Python \texttt{ml-integrity} (port 8090, RandomForest) predit
+\texttt{GUESS}/\texttt{KNOW} --- visible uniquement par l'enseignant.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S3-quiz-ml-guess-know.png}
+  \caption{Capture Promptly --- Detail + analyse ML (labels GUESS / KNOW
+  visibles uniquement pour l'enseignant)}
+  \label{fig:s3-quiz-ml}
+\end{figure}
+
+\begin{problembox}[title={Probleme puis correction}]
+\textbf{Prompt probleme :} when i click detail +ml no thing is happen \\
+\textbf{Correction :} le panneau se mettait a jour hors ecran ; scroll +
+section ML plus visible. \\
+\textbf{Autre :} make modification when i make wrong reponse don't tell me he
+know the reponse $\rightarrow$ reponse fausse forcee en \texttt{GUESS}.
+\end{problembox}
+
+%----------------------------------------------------------------------
+\subsection{S4 --- Forum}
+\label{sec:s4}
+
+\begin{promptbox}
+next gestion
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Forum : sujets par categorie, commentaires, moderation / verrouillage
+enseignants et admins. Nav \texttt{/forum}.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S4-forum.png}
+  \caption{Capture Promptly --- forum (sujets, categories, reactions)}
+  \label{fig:s4-forum}
+\end{figure}
+
+\begin{promptbox}
+add react to the forme like fb and img like fb post not just text
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Posts avec image ; reactions type Facebook (like, coeur, rire, \ldots)
+avec compteurs.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S4-forum-detail-reactions.png}
+  \caption{Capture Promptly --- detail sujet forum (reactions J'aime, commentaires)}
+  \label{fig:s4-reactions}
+\end{figure}
+
+\begin{promptbox}
+ok in the formome add api for badword bllocker \ldots make it with free one
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat (apres choix API a token)}]
+Moderation via \textbf{Sightengine} (api\_user + api\_secret). Insultes
+remplacees par \texttt{***} (au lieu d'un rejet).
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S4-forum-moderation-stars.png}
+  \caption{Capture Promptly --- commentaires avec censure \texttt{***} (Sightengine)}
+  \label{fig:s4-stars}
+\end{figure}
+
+\begin{promptbox}
+i need just when i type same thing wrong will auto correct when i post i need
+api with token make this and free
+\end{promptbox}
+
+\begin{problembox}[title={Probleme --- APIs}]
+GrammarBot annonce sa fermeture ; LanguageTool Premium refuse.
+\textbf{Correction prompt :} don't do that the professor told us make api do
+the auto correct $\rightarrow$ integration \textbf{TextGears} (cle API gratuite).
+\end{problembox}
+
+\begin{resultbox}[title={Resultat}]
+A la publication d'un post/commentaire : correction orthographe TextGears
+(FR/EN configurable), puis censure Sightengine \texttt{***}.
+Champ de reponse : << Votre reponse (insultes $\rightarrow$ ***) >>.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S4-forum-moderation-stars.png}
+  \caption{Capture Promptly --- moderation forum (TextGears + Sightengine \texttt{***})}
+  \label{fig:s4-textgears}
+\end{figure}
+
+%----------------------------------------------------------------------
+\subsection{S5 --- Reclamations}
+\label{sec:s5}
+
+\begin{promptbox}
+good make the next one
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Module reclamations : depot etudiant, suivi de statut ; admin repond et
+change statut (\texttt{OUVERTE} $\rightarrow$ \texttt{EN\_COURS} $\rightarrow$
+\texttt{RESOLUE}/\texttt{REJETEE}).
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S5-reclamations-liste.png}
+  \caption{Capture Promptly --- liste des reclamations (filtres de statut)}
+  \label{fig:s5-liste}
+\end{figure}
+
+\begin{promptbox}
+in the reclamation make other machine learing when same one make reclamtion
+the ml can classified urgence not urgence wand give each reclamtion preority
+and and the type the reclamtion technique disponibility exetera the admine
+can see this the user how make reclamtion he just make the reclamation
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Service \texttt{ml-complaints} (port 8091) : type, urgence, priorite.
+Visible admin seulement ; l'etudiant ne remplit que objet + description.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S5-reclamations-liste.png}
+  \caption{Capture Promptly --- tags ML type / urgence / priorite / emotion sur la liste}
+  \label{fig:s5-ml-liste}
+\end{figure}
+
+\begin{promptbox}[title={Correction classification}]
+\ldots when i type same urgence in the objet and the description u class it
+not urgence \ldots don't make them all urgence make it about the object and
+description
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Modele reentraine : classification basee sur le texte objet+description
+(ex.\ quiz/deadline $\rightarrow$ technique / urgent ; suggestion calme
+$\rightarrow$ non urgent).
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S5-reclamation-ml.png}
+  \caption{Capture Promptly --- detail avec classification ML (objet+description)}
+  \label{fig:s5-ml-detail}
+\end{figure}
+
+\begin{promptbox}
+ok now add emotion detaction in the reclation from the way he write the ia
+will told the admine is this persone angry or happy ..... use free api
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Emotion (En colere / Content / Triste / \ldots) via Hugging Face Inference
++ fallback lexique local, dans le backend Spring. Admin seulement.
+Panneau << Analyse ML (admin) >> : type, urgence, priorite, confiance.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S5-reclamation-ml.png}
+  \caption{Capture Promptly --- detail reclamation avec Analyse ML (admin)}
+  \label{fig:s5-ml}
+\end{figure}
+
+\begin{problembox}[title={Probleme puis correction}]
+Emotion reste << Neutre >> malgre un texte agressif. \\
+\textbf{Causes :} token HF ecrase / lexique sans mots vulgaires EN. \\
+\textbf{Correction :} token local prioritaire + lexique enrichi
+$\rightarrow$ detection << En colere >>.
+\end{problembox}
+
+%----------------------------------------------------------------------
+\subsection{S6 --- Layout (navbar / sidebar)}
+\label{sec:s6}
+
+\begin{promptbox}
+add side bar and make the nave bar have the login information and the name of
+the website and searsh bar
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Sidebar (navigation) + top bar (Promptly, recherche, infos login / logout).
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S6-layout-initial.png}
+  \caption{Capture Promptly --- layout sidebar + navbar + recherche}
+  \label{fig:s6-initial}
+\end{figure}
+
+\begin{promptbox}
+make the side bar with toggel open and close when i click it
+\end{promptbox}
+
+\begin{problembox}
+when i click the side bar no thing is happen --- host/overlay bloquait les
+clics.
+\end{problembox}
+
+\begin{resultbox}[title={Resultat apres correction}]
+Bouton menu ouvre/ferme la sidebar ; backdrop mobile ; hard refresh.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S6-sidebar-navbar.png}
+  \caption{Capture Promptly --- sidebar ouverte + navbar (recherche, profil)}
+  \label{fig:s6-layout}
+\end{figure}
+
+%----------------------------------------------------------------------
+\subsection{S7 --- IA pedagogique (Ollama : resume, flashcards)}
+\label{sec:s7}
+
+\begin{promptbox}
+i download ollama in the pc so make the resumer with ollama
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Bouton << Resumer automatiquement >> sur cours/chapitre PDF :
+PDFBox $\rightarrow$ Ollama (\texttt{llama3.2:3b}) $\rightarrow$ resume.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S7-cours-ollama.png}
+  \caption{Capture Promptly --- bouton Resumer automatiquement (Ollama)}
+  \label{fig:s7-resume}
+\end{figure}
+
+\begin{promptbox}
+and give like flush card of the cours read the pdf then give me 4 flash card
+\ldots when i click them the card turn and i read the tips
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+<< Generer 4 flashcards >> : 4 cartes recto/verso (titre / tip) depuis le PDF.
+Boutons visibles sur la fiche cours (avec le PDF).
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S7-resume-flashcards.png}
+  \caption{Capture Promptly --- Generer 4 flashcards (Ollama)}
+  \label{fig:s7-flash}
+\end{figure}
+
+\begin{problembox}
+Impossible d'interpreter les flashcards (400) ; cartes invisibles (CSS 3D).
+\textbf{Corrections :} parsing JSON Ollama renforce ; CSS flip simplifie.
+\end{problembox}
+
+%----------------------------------------------------------------------
+\subsection{S8 --- Assistant IA (chatbot)}
+\label{sec:s8}
+
+\begin{promptbox}
+assistance ia make chatbot general for the aplication make it like llm
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Page \texttt{/ia} : chat general via \texttt{POST /api/ai/chat} (Ollama),
+historique de conversation, suggestions. Necessite Ollama + modele local.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S8-assistant-ia.png}
+  \caption{Capture Promptly --- Assistant IA (chatbot Ollama)}
+  \label{fig:s8-assistant}
+\end{figure}
+
+%----------------------------------------------------------------------
+\subsection{S9 --- Recrutement + matching CV}
+\label{sec:s9}
+
+\begin{promptbox}
+ok we need to add other gestion like recretment the admine make recretment
+then make the employee see the offre and add his cv then the admine see how
+aplly the offre and see his cv
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Module \texttt{/recrutement} : admin cree offres ; candidats postulent avec
+CV PDF ; admin voit candidatures + CV + statuts.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S9-recrutement.png}
+  \caption{Capture Promptly --- liste des offres de recrutement}
+  \label{fig:s9-recrut}
+\end{figure}
+
+\begin{promptbox}
+good now add part of skills and experience in the offre form then when the
+employee upload his cv make matching cv with the skkils in the offre and the
+skills in the cv use api with token to make this and be sure the api free
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat (version initiale)}]
+Skills + experience sur l'offre ; matching via Hugging Face
+(\texttt{bart-large-mnli}) $\rightarrow$ score \%, competences
+matched/missing.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S9-offre-match.png}
+  \caption{Capture Promptly --- offre avec competences et score de matching CV}
+  \label{fig:s9-match-hf}
+\end{figure}
+
+\begin{promptbox}[title={Correction --- changement d'API}]
+can u relpalce Hugging Face just in this gestion with other pai to make
+matching cv ?
+\end{promptbox}
+
+\begin{resultbox}[title={Resultat}]
+Matching CV bascule sur \textbf{Google Gemini} (cle gratuite AI Studio).
+HF reste pour l'emotion des reclamations. Fallback mots-cles si API down.
+Admin voit le score Match \%, competences trouvees / manquantes.
+\end{resultbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{app/S9-offre-match.png}
+  \caption{Capture Promptly --- offre avec matching CV (score + competences)}
+  \label{fig:s9-match}
+\end{figure}
+
+%----------------------------------------------------------------------
+\section{Synthese des sessions}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}clp{7.5cm}@{}}
+\toprule
+Session & Gestion & Resultat principal \\
+\midrule
+S0 & Fondation & Spring Boot + Angular + MySQL + health \\
+S1 & Auth (+ Google) & JWT, roles, Sign-In Google \\
+S2 & Cours / chapitres & CRUD, image, PDF \\
+S3 & Quiz + ML & QCM, Ollama, timers, GUESS/KNOW \\
+S4 & Forum & Posts, reactions, Sightengine, TextGears \\
+S5 & Reclamations & ML type/urgence + emotion HF \\
+S6 & Layout & Sidebar / navbar / recherche \\
+S7 & Resume / flashcards & Ollama + PDFBox \\
+S8 & Assistant IA & Chatbot Ollama \\
+S9 & Recrutement & Offres, CV, matching Gemini \\
+\bottomrule
+\end{tabular}
+\caption{Recapitulatif des gestions documentees depuis l'historique Cursor}
+\end{table}
+
+Chaque resultat ci-dessus est illustre par une \textbf{capture de la
+plateforme Promptly} (\texttt{figures/app/}). Des captures Cursor
+(prompt dans le chat Agent) restent optionnelles dans
+\texttt{figures/cursor/}.

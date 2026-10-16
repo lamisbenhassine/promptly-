@@ -1,0 +1,45 @@
+\chapter{Role du projet Promptly}
+\label{ch:role}
+
+\section{Contexte}
+
+\textbf{Promptly} est une plateforme web d'apprentissage dediee a la programmation
+(Java, Spring Boot, Angular, algorithmique). Elle s'adresse aux etudiants, aux
+enseignants et a un administrateur.
+
+\section{Fonctionnalites principales}
+
+\begin{itemize}
+  \item \textbf{Cours et chapitres} : contenus, PDF, resume IA, flashcards ;
+  \item \textbf{Quiz} : QCM, scores, detection GUESS/KNOW (ML) ;
+  \item \textbf{Forum} : discussions, auto-correction (TextGears), censure (Sightengine) ;
+  \item \textbf{Reclamations} : depot etudiant, labels ML + emotion (admin) ;
+  \item \textbf{Recrutement} : offres (admin), candidature + CV, matching competences (Gemini) ;
+  \item \textbf{Assistant IA} : chatbot general (Ollama).
+\end{itemize}
+
+\section{Pile technique}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+Couche & Technologie \\
+\midrule
+Frontend & Angular \\
+Backend & Spring Boot 3 \\
+Base de donnees & MySQL \\
+LLM local & Ollama \\
+ML locaux & Python (FastAPI) --- ports 8090 / 8091 \\
+\bottomrule
+\end{tabular}
+\caption{Pile technique de Promptly}
+\end{table}
+
+\section{Roles utilisateurs}
+
+\begin{itemize}
+  \item \textbf{ETUDIANT} : cours, quiz, forum, reclamations, candidatures, assistant ;
+  \item \textbf{ENSEIGNANT} : gestion des cours / quiz (+ meme acces apprenant) ;
+  \item \textbf{ADMIN} : utilisateurs, traitement reclamations, offres de recrutement, vues ML.
+\end{itemize}

@@ -1,0 +1,49 @@
+\babel@toc {french}{}\relax 
+\contentsline {chapter}{\numberline {1}Introduction}{3}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Objectif du rapport}{3}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Deux faces de l'IA}{3}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Methode de documentation}{3}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Organisation du document}{3}{section.1.4}%
+\contentsline {chapter}{\numberline {2}Role du projet Promptly}{4}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Contexte}{4}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Fonctionnalites principales}{4}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Pile technique}{4}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Roles utilisateurs}{4}{section.2.4}%
+\contentsline {chapter}{\numberline {3}IA utilisee pour developper le projet}{5}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Outils et modeles}{5}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Chaine initiale : ChatGPT puis Cursor}{5}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Prompt de l'auteur a ChatGPT}{5}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Resultat ChatGPT : prompt pour Cursor}{6}{subsection.3.2.2}%
+\contentsline {section}{\numberline {3.3}Sessions Cursor par gestion}{8}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}S0 --- Fondation (template Spring Boot + Angular)}{9}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}S1 --- Authentification et utilisateurs}{10}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}S2 --- Cours et chapitres}{12}{subsection.3.3.3}%
+\contentsline {subsection}{\numberline {3.3.4}S3 --- Evaluations / Quiz}{15}{subsection.3.3.4}%
+\contentsline {subsection}{\numberline {3.3.5}S4 --- Forum}{20}{subsection.3.3.5}%
+\contentsline {subsection}{\numberline {3.3.6}S5 --- Reclamations}{23}{subsection.3.3.6}%
+\contentsline {subsection}{\numberline {3.3.7}S6 --- Layout (navbar / sidebar)}{27}{subsection.3.3.7}%
+\contentsline {subsection}{\numberline {3.3.8}S7 --- IA pedagogique (Ollama : resume, flashcards)}{29}{subsection.3.3.8}%
+\contentsline {subsection}{\numberline {3.3.9}S8 --- Assistant IA (chatbot)}{31}{subsection.3.3.9}%
+\contentsline {subsection}{\numberline {3.3.10}S9 --- Recrutement + matching CV}{32}{subsection.3.3.10}%
+\contentsline {section}{\numberline {3.4}Synthese des sessions}{35}{section.3.4}%
+\contentsline {chapter}{\numberline {4}IA integree a l'application}{37}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Vue d'ensemble des fonctionnalites}{37}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Ollama --- LLM local}{38}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Pourquoi Ollama}{38}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Resume automatique de PDF}{38}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Flashcards}{38}{subsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.2.4}Generation de quiz (10 questions)}{38}{subsection.4.2.4}%
+\contentsline {subsection}{\numberline {4.2.5}Assistant IA (chatbot)}{38}{subsection.4.2.5}%
+\contentsline {section}{\numberline {4.3}APIs externes}{39}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Hugging Face --- emotion des reclamations}{39}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Sightengine --- moderation du forum}{39}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}TextGears --- auto-correction du forum}{39}{subsection.4.3.3}%
+\contentsline {subsection}{\numberline {4.3.4}Google Gemini --- matching CV / offre}{39}{subsection.4.3.4}%
+\contentsline {section}{\numberline {4.4}Microservices ML locaux (Python)}{39}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}ml-integrity (port 8090) --- GUESS / KNOW}{39}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}ml-complaints (port 8091) --- type, urgence, priorite}{40}{subsection.4.4.2}%
+\contentsline {section}{\numberline {4.5}Synthese}{40}{section.4.5}%
+\contentsline {chapter}{\numberline {5}Conclusion}{41}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Bilan}{41}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Limites}{41}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Perspectives}{41}{section.5.3}%

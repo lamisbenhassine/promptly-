@@ -1,0 +1,110 @@
+% =============================================================================
+%  Rapport Promptly — Utilisation de l'intelligence artificielle
+%  Compiler : latexmk -pdf main.tex   OU   pdflatex main.tex (x2)
+% =============================================================================
+\documentclass[11pt,a4paper]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+\geometry{margin=2.5cm}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=blue,
+  citecolor=black
+}
+
+\graphicspath{{figures/}{figures/chatgpt/}{figures/cursor/}{figures/app/}}
+
+% Encadre pour les prompts
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable,skins}
+\newtcolorbox{promptbox}[1][]{
+  colback=gray!8,
+  colframe=gray!50,
+  fonttitle=\bfseries,
+  title={Prompt},
+  breakable,
+  #1
+}
+\newtcolorbox{resultbox}[1][]{
+  colback=green!3,
+  colframe=green!40!black,
+  fonttitle=\bfseries,
+  title={Resultat},
+  breakable,
+  #1
+}
+\newtcolorbox{problembox}[1][]{
+  colback=red!3,
+  colframe=red!40!black,
+  fonttitle=\bfseries,
+  title={Probleme},
+  breakable,
+  #1
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Promptly --- Rapport IA}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\title{%
+  Utilisation de l'intelligence artificielle\\
+  dans le projet \textbf{Promptly}\\[1em]
+  \large Rapport : outils d'IA (developpement) et IA integree au produit
+}
+\author{%
+  Encadre par : \textbf{Khemiri Akram}\\[1.2em]
+  \textbf{\'Equipe Alpha Code}\\[0.8em]
+  Lamis Ben Hassine\\
+  Khalil Fray\\
+  Saif Denden\\
+  Isra Bel Habib\\
+  Hamza Taychi\\[1em]
+  Annee universitaire 2025--2026
+}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Ce rapport documente l'utilisation de l'intelligence artificielle dans le projet
+\textbf{Promptly}, une plateforme d'apprentissage en ligne (Spring Boot + Angular).
+Deux axes sont distingues :
+\begin{enumerate}
+  \item l'\textbf{IA comme outil de developpement} (ChatGPT, puis editeur Cursor
+        avec modeles Claude, Grok, etc.), avec prompts, resultats, corrections
+        et captures d'ecran ;
+  \item l'\textbf{IA integree a l'application} (Ollama, APIs externes, microservices ML),
+        avec justification, fonctionnement et resultats observes.
+\end{enumerate}
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\input{chapters/01-introduction}
+\input{chapters/02-role-projet}
+\input{chapters/03-ia-developpement}
+\input{chapters/04-ia-application}
+\input{chapters/05-conclusion}
+
+\end{document}

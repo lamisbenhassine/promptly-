@@ -1,0 +1,191 @@
+\chapter{IA integree a l'application}
+\label{ch:app}
+
+Ce chapitre decrit \textbf{comment l'intelligence artificielle est utilisee
+dans le produit Promptly} (cote application), et non comment le code a ete
+genere avec Cursor / Claude / Grok. Deux familles d'outils coexistent :
+\begin{itemize}
+  \item \textbf{Ollama} : modele de langage local (LLM) ;
+  \item \textbf{APIs externes} et \textbf{microservices ML} : services
+        specialises (moderation, emotion, matching, prediction).
+\end{itemize}
+
+Les cles API sont stockees dans
+\texttt{application-local.properties} (fichier gitignore), jamais dans le
+depot Git. Documentation detaillee : \texttt{docs/apis-et-tokens.md}.
+
+\section{Vue d'ensemble des fonctionnalites}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}p{3.8cm}p{4cm}p{5.2cm}@{}}
+\toprule
+Fonctionnalite & Technologie & Role \\
+\midrule
+Resume PDF & Ollama + PDFBox & Resume automatique d'un cours / chapitre \\
+Flashcards & Ollama + PDFBox & 4 cartes pedagogiques depuis le PDF \\
+Generation de quiz & Ollama & 10 QCM a partir du titre / cours / PDF \\
+Assistant IA & Ollama & Chatbot general dans l'application \\
+Emotion reclamations & Hugging Face & Ton (colere, neutre, \ldots) pour l'admin \\
+Censure forum & Sightengine & Insultes remplacees par \texttt{***} \\
+Auto-correct forum & TextGears & Orthographe / grammaire a la publication \\
+Matching CV / offre & Google Gemini & Score competences + experience \\
+GUESS / KNOW quiz & ml-integrity (:8090) & Reponse au hasard vs connue \\
+Type / urgence & ml-complaints (:8091) & Labels admin sur reclamations \\
+\bottomrule
+\end{tabular}
+\caption{Fonctionnalites d'IA integrees a Promptly}
+\end{table}
+
+\section{Ollama --- LLM local}
+
+\subsection{Pourquoi Ollama}
+
+Ollama permet d'executer un modele de langage \textbf{sur la machine de
+developpement} (\texttt{http://localhost:11434}), sans cout API pour les
+fonctions pedagogiques centrales. Les donnees des PDF et des conversations
+restent locales. Modele utilise : \texttt{llama3.2:3b} (ou equivalent
+installe via \texttt{ollama pull}).
+
+Extraction de texte des PDF : bibliotheque Java \textbf{Apache PDFBox}
+dans le backend Spring Boot, avant envoi du texte a Ollama.
+
+\subsection{Resume automatique de PDF}
+
+Sur la fiche d'un \textbf{cours} ou d'un \textbf{chapitre} ayant un PDF :
+\begin{enumerate}
+  \item l'utilisateur clique sur << Resumer automatiquement >> ;
+  \item le backend extrait le texte du PDF (tronque si trop long) ;
+  \item Ollama produit un resume en francais ;
+  \item le resume s'affiche sous la section PDF.
+\end{enumerate}
+Endpoints typiques :
+\texttt{POST /api/ai/courses/\{id\}/summarize-pdf} et equivalent chapitre.
+Limitation : un PDF scanne (image seule, sans texte selectable) ne peut pas
+etre resume.
+
+\subsection{Flashcards}
+
+Meme flux PDF $\rightarrow$ texte $\rightarrow$ Ollama, avec une consigne
+demandant \textbf{4 flashcards} (recto = titre / question, verso = tip).
+Bouton << Generer 4 flashcards >> ; l'utilisateur retourne les cartes dans
+l'interface Angular. Le backend parse la reponse JSON d'Ollama (avec
+fallbacks si le format est imparfait).
+
+\subsection{Generation de quiz (10 questions)}
+
+Dans le formulaire << Nouveau quiz >>, apres titre, description et choix
+du cours (chapitre optionnel) :
+\begin{enumerate}
+  \item clic sur << Generer 10 questions avec IA >> ;
+  \item Ollama recoit titre, description et contenu du cours / chapitre / PDF ;
+  \item 10 QCM sont proposes ; l'enseignant peut les modifier avant creation.
+\end{enumerate}
+La generation peut prendre 30 a 90 secondes selon la machine.
+
+\subsection{Assistant IA (chatbot)}
+
+Page \texttt{/ia} : chatbot general de la plateforme.
+\begin{itemize}
+  \item Backend : \texttt{POST /api/ai/chat} avec historique de conversation ;
+  \item Frontend : bulles de chat, suggestions de questions, envoi par Entree ;
+  \item Pre-requis : Ollama demarre et modele telecharge.
+\end{itemize}
+L'assistant repond a des questions sur Java, Spring, Angular, le fonctionnement
+de Promptly, etc. Ce n'est pas un remplacement du professeur : c'est une aide
+contextuelle integree a l'application.
+
+\section{APIs externes}
+
+\subsection{Hugging Face --- emotion des reclamations}
+
+\textbf{Usage.} Analyser le \textbf{ton} d'une reclamation (En colere, Content,
+Triste, Inquiet, Surpris, Neutre) a partir du texte objet + description.
+
+\textbf{Qui voit le resultat.} Uniquement l'\textbf{administrateur} (panneau
+Analyse ML). L'etudiant qui depose la reclamation ne voit pas l'emotion.
+
+\textbf{Technique.} Appel Inference API Hugging Face depuis le backend Spring
+(\texttt{ComplaintEmotionService}). Token :
+\texttt{promptly.emotion.hf-token}. Si l'API est indisponible, un
+\textbf{lexique local} FR/EN sert de secours.
+
+\subsection{Sightengine --- moderation du forum}
+
+\textbf{Usage.} Detecter les insultes / gros mots dans les \textbf{posts} et
+\textbf{commentaires} du forum, puis les remplacir par \texttt{***} (plutot
+que de rejeter le message).
+
+\textbf{Technique.} API Sightengine (plan gratuit) avec \texttt{api-user} et
+\texttt{api-secret} dans \texttt{application-local.properties}. Service Java :
+\texttt{ProfanityFilterService}. Sans cles : liste locale de mots.
+
+\subsection{TextGears --- auto-correction du forum}
+
+\textbf{Usage.} Corriger l'orthographe et la grammaire \textbf{a la
+publication} d'un post ou d'un commentaire (avant la censure Sightengine).
+
+\textbf{Technique.} API TextGears avec cle
+\texttt{promptly.spellcheck.api-key} ; langue configurable
+(\texttt{fr-FR} ou \texttt{en-US}). Service : \texttt{SpellCorrectService}.
+Le professeur exigeait une API avec token : TextGears a ete retenu apres
+essais d'autres fournisseurs (LanguageTool Premium, GrammarBot ferme, etc.).
+
+\subsection{Google Gemini --- matching CV / offre}
+
+\textbf{Usage.} Dans le module \textbf{Recrutement}, apres depot d'un CV PDF
+sur une offre contenant des \textbf{competences} (et eventuellement une
+experience) :
+\begin{enumerate}
+  \item extraction du texte du CV (PDFBox) ;
+  \item Gemini compare le CV aux competences de l'offre ;
+  \item le backend stocke un \textbf{score Match \%}, les competences
+        trouvees / manquantes, et un indicateur d'experience.
+\end{enumerate}
+Visible par l'\textbf{admin} sur la fiche de candidature. Cle gratuite AI Studio :
+\texttt{promptly.cv-match.api-key}. Sans cle : matching lexical (mots-cles)
+en secours. Hugging Face n'est \textbf{plus} utilise pour cette fonction
+(uniquement pour l'emotion).
+
+\section{Microservices ML locaux (Python)}
+
+\subsection{ml-integrity (port 8090) --- GUESS / KNOW}
+
+Lorsqu'un etudiant passe un quiz (une question a la fois, avec minuteurs),
+le service Python \texttt{ml-integrity} (scikit-learn, RandomForest) predit
+si la reponse est :
+\begin{itemize}
+  \item \texttt{GUESS} : reponse au hasard ;
+  \item \texttt{KNOW} : reponse probablement connue.
+\end{itemize}
+Features utilisees : temps passe, changements de reponse, etc.
+\textbf{Seul l'enseignant} voit ces labels (Detail + analyse ML). Une
+reponse fausse est forcee en \texttt{GUESS}. Si le service est arrete, Spring
+applique une heuristique locale.
+
+\subsection{ml-complaints (port 8091) --- type, urgence, priorite}
+
+A chaque nouvelle reclamation, le service \texttt{ml-complaints} predit :
+\begin{itemize}
+  \item \textbf{type} (technique, pedagogique, compte, \ldots) ;
+  \item \textbf{urgence} (urgent / non urgent) ;
+  \item \textbf{priorite} (haute / moyenne / \ldots).
+\end{itemize}
+L'etudiant ne remplit que l'objet et la description ; les labels sont
+reserves a l'admin. La classification s'appuie sur le \textbf{texte} (pas
+uniquement sur des mots-cles fixes). Emotion = service HF separe (voir
+ci-dessus), pas ce microservice.
+
+\section{Synthese}
+
+\begin{itemize}
+  \item \textbf{Ollama} couvre le coeur pedagogique : resume, flashcards,
+        generation de quiz, assistant chatbot --- gratuit et local.
+  \item \textbf{APIs externes} couvrent des besoins specialises : emotion
+        (HF), moderation (Sightengine), orthographe (TextGears), matching CV
+        (Gemini).
+  \item \textbf{ML Python} couvre des predictions metier : integrite des
+        reponses au quiz, tri des reclamations.
+  \item En cas d'indisponibilite d'une API ou d'un service ML, des
+        \textbf{fallbacks} locaux limitent la panne de l'application.
+\end{itemize}

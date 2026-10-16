@@ -1,0 +1,48 @@
+\chapter{Introduction}
+\label{ch:intro}
+
+\section{Objectif du rapport}
+
+Ce rapport documente l'utilisation de l'intelligence artificielle dans le projet
+\textbf{Promptly}. Il presente :
+\begin{itemize}
+  \item les \textbf{outils d'IA} utilises pour concevoir et coder l'application ;
+  \item les \textbf{fonctionnalites d'IA} integrees au produit livre.
+\end{itemize}
+
+\section{Deux faces de l'IA}
+
+\begin{enumerate}
+  \item \textbf{IA cote developpement.} ChatGPT a servi a preparer le premier
+        grand prompt. L'editeur \textbf{Cursor} (mode Agent) a ensuite heberge
+        le dialogue avec des \textbf{modeles} tels que \textbf{Claude} et
+        \textbf{Grok}, qui ont genere, corrige et explique le code. Chaque etape
+        importante est documentee : prompt, resultat, eventuel probleme, prompt
+        de correction, nouveau resultat --- avec captures d'ecran.
+  \item \textbf{IA cote application.} Le produit appelle des modeles et des APIs
+        (Ollama, Hugging Face, Sightengine, TextGears, Gemini, services ML locaux)
+        pour resume, chat, moderation, emotion, matching CV, etc.
+\end{enumerate}
+
+\section{Methode de documentation}
+
+Pour chaque echange significatif avec une IA de developpement :
+\begin{enumerate}
+  \item capture du \textbf{prompt} ;
+  \item capture du \textbf{resultat} ;
+  \item si erreur ou ecart : capture du \textbf{probleme}, du \textbf{prompt de
+        correction}, puis du \textbf{resultat corrige}.
+\end{enumerate}
+
+Les images sont placees dans \texttt{figures/chatgpt/}, \texttt{figures/cursor/}
+et \texttt{figures/app/}.
+
+\section{Organisation du document}
+
+Le chapitre~\ref{ch:role} rappelle brievement le role de Promptly.
+Le chapitre~\ref{ch:dev} detaille la chaine ChatGPT~$\rightarrow$~Cursor
+(Claude / Grok).
+Le chapitre~\ref{ch:app} presente l'IA integree au produit.
+Le chapitre~\ref{ch:conclusion} conclut.
+
+% --- Contenu a completer apres validation ---
